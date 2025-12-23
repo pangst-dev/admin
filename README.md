@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin PANGS!T - Live Dashboard</title>
+    <title>Admin Panel - PANGS!T Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -11,1529 +11,1107 @@
             --secondary: #2d3047;
             --light: #f8f9fa;
             --dark: #212529;
-            --gray: #6c757d;
-            --success: #25D366;
+            --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
+            --info: #17a2b8;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
         
         body {
-            background: #f0f2f5;
+            background: #f5f5f5;
+            color: var(--dark);
+        }
+        
+        .admin-container {
+            display: flex;
             min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--secondary);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .logo-admin {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .logo-admin h2 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .nav-admin {
+            list-style: none;
+        }
+        
+        .nav-admin li {
+            margin-bottom: 5px;
+        }
+        
+        .nav-admin a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        
+        .nav-admin a:hover,
+        .nav-admin a.active {
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--primary);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
             padding: 20px;
         }
         
-        .container {
-            max-width: 100%;
-        }
-        
-        .header {
+        .header-admin {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            text-align: center;
-            border: 3px solid var(--primary);
-        }
-        
-        .header h1 {
-            color: var(--secondary);
-            font-size: 28px;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
         }
         
-        .header h1 i {
-            color: var(--primary);
-        }
-        
-        .subtitle {
-            color: var(--gray);
-            font-size: 16px;
-        }
-        
-        .github-badge {
-            display: inline-block;
-            background: #24292e;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        
-        /* Stats */
-        .stats {
+        .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
         
         .stat-card {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border-top: 5px solid var(--primary);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         
-        .stat-card.new {
-            border-top-color: var(--success);
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
         }
         
-        .stat-number {
+        .icon-orders { background: var(--primary); }
+        .icon-revenue { background: var(--success); }
+        .icon-pending { background: var(--warning); }
+        .icon-customers { background: var(--info); }
+        
+        .stat-info h3 {
             font-size: 32px;
-            font-weight: 800;
-            color: var(--primary);
             margin-bottom: 5px;
         }
         
-        .stat-label {
-            font-size: 14px;
-            color: var(--gray);
-        }
-        
-        /* Controls */
-        .controls {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(255,107,53,0.3);
-        }
-        
-        .btn-success {
-            background: var(--success);
-        }
-        
-        .btn-secondary {
-            background: var(--secondary);
-        }
-        
-        /* Orders */
+        /* Orders Table */
         .orders-container {
             background: white;
-            border-radius: 15px;
+            border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-            max-height: 600px;
-            overflow-y: auto;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
         
-        .orders-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .order-card {
-            border: 2px solid #eee;
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s;
-            animation: slideIn 0.4s ease;
-        }
-        
-        .order-card.new {
-            border-color: var(--primary);
-            background: #fff9e6;
-            animation: pulse 2s infinite;
-        }
-        
-        .order-card.proses {
-            border-color: #007bff;
-            background: #f0f8ff;
-        }
-        
-        .order-card.selesai {
-            border-color: var(--success);
-            background: #f0fff4;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(255,107,53,0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(255,107,53,0);
-            }
-        }
-        
-        .order-header {
+        .orders-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
-        .order-id {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: var(--light);
+            padding: 15px;
+            text-align: left;
             color: var(--secondary);
-            font-size: 16px;
-        }
-        
-        .order-time {
-            color: var(--gray);
-            font-size: 14px;
-        }
-        
-        .customer-info {
-            margin-bottom: 15px;
-        }
-        
-        .customer-name {
-            font-size: 18px;
             font-weight: 600;
-            color: var(--secondary);
-            margin-bottom: 5px;
+            border-bottom: 2px solid #dee2e6;
         }
         
-        .customer-phone {
-            color: var(--primary);
-            font-weight: 600;
-            font-size: 16px;
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
         }
         
-        .order-total {
-            text-align: right;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 10px 0;
+        tr:hover {
+            background: #f8f9fa;
         }
         
+        /* Status Badges */
         .status-badge {
             display: inline-block;
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .status-new {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-proses {
-            background: #cce5ff;
-            color: #004085;
-        }
-        
-        .status-selesai {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .action-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
             font-weight: 600;
-            cursor: pointer;
+        }
+        
+        .badge-new { background: #cce5ff; color: #004085; }
+        .badge-processing { background: #d1ecf1; color: #0c5460; }
+        .badge-shipped { background: #d4edda; color: #155724; }
+        .badge-delivered { background: #d1e7dd; color: #0f5132; }
+        .badge-cancelled { background: #f8d7da; color: #721c24; }
+        
+        /* Payment Status */
+        .payment-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .payment-pending { background: #fff3cd; color: #856404; }
+        .payment-paid { background: #d4edda; color: #155724; }
+        .payment-failed { background: #f8d7da; color: #721c24; }
+        
+        /* Action Buttons */
+        .action-buttons {
             display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 5px;
         }
         
-        .btn-wa {
-            background: var(--success);
-            color: white;
+        .btn-action {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
-        .btn-call {
-            background: #007bff;
-            color: white;
+        .btn-view { background: #17a2b8; color: white; }
+        .btn-process { background: #28a745; color: white; }
+        .btn-ship { background: #007bff; color: white; }
+        .btn-cancel { background: #dc3545; color: white; }
+        .btn-edit { background: #ffc107; color: #212529; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         
-        .btn-update {
-            background: var(--primary);
-            color: white;
+        .modal.active {
+            display: flex;
         }
         
-        /* Items List */
-        .items-list {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
         }
         
-        .item-row {
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #dee2e6;
         }
         
-        .item-row:last-child {
-            border-bottom: none;
+        .modal-body {
+            padding: 20px;
         }
         
-        .item-name {
-            flex: 3;
-            font-weight: 500;
-        }
-        
-        .item-qty {
-            flex: 1;
-            text-align: center;
-            background: var(--primary);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .item-price {
-            flex: 2;
-            text-align: right;
-            font-weight: 600;
-        }
-        
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
             color: var(--gray);
         }
         
-        .empty-state i {
-            font-size: 64px;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-        
-        /* Sound toggle */
-        .sound-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            cursor: pointer;
-            z-index: 100;
-        }
-        
-        /* Refresh button */
-        .refresh-fixed {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            cursor: pointer;
-            z-index: 100;
-        }
-        
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .page-btn {
-            padding: 8px 15px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
-        .page-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        /* Bulk Actions */
-        .bulk-actions {
-            display: none;
-            background: var(--warning);
-            padding: 15px;
-            border-radius: 10px;
+        /* Form Groups */
+        .form-group {
             margin-bottom: 15px;
-            align-items: center;
-            justify-content: space-between;
         }
         
-        .bulk-actions.show {
-            display: flex;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--secondary);
         }
         
-        .order-checkbox {
-            margin-right: 10px;
-        }
-        
-        /* Data Mismatch Warning */
-        .data-warning {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
+        .form-control {
+            width: 100%;
             padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
             font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            
+            .sidebar:hover {
+                width: 250px;
+            }
+            
+            .nav-admin a span {
+                display: none;
+            }
+            
+            .sidebar:hover .nav-admin a span {
+                display: inline;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .sidebar:hover + .main-content {
+                margin-left: 250px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-admin {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>
-                <i class="fas fa-satellite-dish"></i>
-                PANGS!T LIVE ADMIN
-            </h1>
-            <p class="subtitle">Real-time orders from GitHub Pages</p>
-            <div class="github-badge">
-                <i class="fab fa-github"></i> GitHub Pages Active
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-admin">
+                <h2><i class="fas fa-dumpling"></i> PANGS!T Admin</h2>
+                <p style="font-size: 12px; opacity: 0.8;">Control Panel</p>
             </div>
-        </div>
-        
-        <!-- Stats -->
-        <div class="stats" id="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalOrders">0</div>
-                <div class="stat-label">Total Orders</div>
-            </div>
-            <div class="stat-card new">
-                <div class="stat-number" id="newOrders">0</div>
-                <div class="stat-label">New Orders</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="todayOrders">0</div>
-                <div class="stat-label">Today's Orders</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalRevenue">0</div>
-                <div class="stat-label">Total Revenue</div>
-            </div>
-        </div>
-        
-        <!-- Bulk Actions -->
-        <div class="bulk-actions" id="bulkActions">
-            <div>
-                <strong id="selectedCount">0</strong> orders selected
-            </div>
-            <div>
-                <button class="btn btn-success" onclick="updateBulkStatus('processing')">
-                    <i class="fas fa-play"></i> Process Selected
-                </button>
-                <button class="btn" onclick="updateBulkStatus('completed')">
-                    <i class="fas fa-check"></i> Complete Selected
-                </button>
-                <button class="btn btn-secondary" onclick="clearSelection()">
-                    <i class="fas fa-times"></i> Clear
-                </button>
-            </div>
-        </div>
-        
-        <!-- Controls -->
-        <div class="controls">
-            <button class="btn" onclick="loadOrders()" id="refreshBtn">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <button class="btn btn-success" onclick="exportOrders()">
-                <i class="fas fa-download"></i> Export Data
-            </button>
-            <button class="btn" onclick="toggleBulkSelect()">
-                <i class="fas fa-check-square"></i> Bulk Select
-            </button>
-            <button class="btn btn-secondary" onclick="clearOrders()">
-                <i class="fas fa-trash"></i> Clear All
-            </button>
-            <button class="btn" onclick="fixDataMismatch()">
-                <i class="fas fa-wrench"></i> Fix Data Issues
-            </button>
-            <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-                <span id="lastUpdate">Last update: -</span>
-                <span id="autoRefresh" style="background: #e9ecef; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
-                    Auto: ON
-                </span>
-            </div>
-        </div>
-        
-        <!-- Orders Container -->
-        <div class="orders-container" id="ordersContainer">
-            <h2 style="color: var(--secondary); margin-bottom: 20px;">
-                <i class="fas fa-bolt"></i> Live Orders
-                <span id="ordersCount" style="font-size: 14px; color: var(--gray);">(0 orders)</span>
-            </h2>
             
-            <div id="dataWarnings"></div>
-            
-            <div class="orders-list" id="ordersList">
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>No orders yet</h3>
-                    <p>Waiting for customers to place orders</p>
+            <ul class="nav-admin">
+                <li><a href="#" class="active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+                <li><a href="#" data-tab="orders"><i class="fas fa-shopping-cart"></i> <span>Pesanan</span></a></li>
+                <li><a href="#" data-tab="products"><i class="fas fa-box"></i> <span>Produk</span></a></li>
+                <li><a href="#" data-tab="payments"><i class="fas fa-credit-card"></i> <span>Pembayaran</span></a></li>
+                <li><a href="#" data-tab="customers"><i class="fas fa-users"></i> <span>Pelanggan</span></a></li>
+                <li><a href="#" data-tab="settings"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header-admin">
+                <h1>Dashboard Admin</h1>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span id="currentTime"></span>
+                    <button class="btn-action" style="background: var(--primary); color: white;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                 </div>
             </div>
             
-            <!-- Pagination -->
-            <div class="pagination" id="pagination">
-                <!-- Pagination akan di-generate oleh JavaScript -->
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon icon-orders">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalOrders">0</h3>
+                        <p>Total Pesanan</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon icon-revenue">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalRevenue">Rp 0</h3>
+                        <p>Total Pendapatan</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon icon-pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingOrders">0</h3>
+                        <p>Pesanan Pending</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon icon-customers">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalCustomers">0</h3>
+                        <p>Total Pelanggan</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders Section -->
+            <div class="orders-container" id="ordersTab">
+                <div class="orders-header">
+                    <h2>Daftar Pesanan</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" placeholder="Cari pesanan..." class="form-control" style="width: 200px;" id="searchOrder">
+                        <select class="form-control" style="width: 150px;" id="filterStatus">
+                            <option value="">Semua Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Diproses</option>
+                            <option value="shipped">Dikirim</option>
+                            <option value="delivered">Selesai</option>
+                            <option value="cancelled">Dibatalkan</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Tanggal</th>
+                                <th>Pelanggan</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Pembayaran</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Data pesanan akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Other tabs (Products, Payments, etc.) -->
+            <div id="productsTab" style="display: none;">
+                <!-- Tab Produk -->
+            </div>
+            
+            <div id="paymentsTab" style="display: none;">
+                <!-- Tab Pembayaran -->
             </div>
         </div>
-        
-        <!-- Instructions -->
-        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-            <h3 style="color: var(--secondary); margin-bottom: 15px;">
-                <i class="fas fa-info-circle"></i> How It Works
-            </h3>
-            <div style="color: var(--gray); font-size: 14px; line-height: 1.6;">
-                <p><strong>1.</strong> Customers order via main website</p>
-                <p><strong>2.</strong> Orders saved to browser storage</p>
-                <p><strong>3.</strong> This admin panel reads orders automatically</p>
-                <p><strong>4.</strong> Admin can update status and contact customers</p>
-                <p><strong>5.</strong> Data persists in browser (localStorage)</p>
-                <p><strong>6.</strong> <span style="color: var(--primary); font-weight: bold;">Fixed:</span> Data consistency between order form and admin panel</p>
+    </div>
+    
+    <!-- Modal Detail Pesanan -->
+    <div class="modal" id="orderDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detail Pesanan</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="orderDetailContent">
+                <!-- Detail pesanan akan diisi oleh JavaScript -->
             </div>
         </div>
     </div>
     
-    <!-- Sound Toggle -->
-    <div class="sound-toggle" onclick="toggleSound()" id="soundToggle">
-        <i class="fas fa-volume-up" id="soundIcon"></i>
+    <!-- Modal Konfirmasi Pembayaran -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Konfirmasi Pembayaran</h3>
+                <button class="close-modal" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="paymentContent">
+                <!-- Form konfirmasi pembayaran -->
+            </div>
+        </div>
     </div>
-    
-    <!-- Refresh Button -->
-    <div class="refresh-fixed" onclick="loadOrders()">
-        <i class="fas fa-redo"></i>
-    </div>
-    
-    <!-- Notification Sound -->
-    <audio id="notificationSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
-    </audio>
-    
+
     <script>
-        // ==================== ADMIN DASHBOARD - FIXED VERSION ====================
+        // Key untuk localStorage (SAMA dengan halaman toko)
+        const STORAGE_KEY = 'pangsit_orders_master';
         
-        let orders = [];
-        let soundEnabled = true;
-        let lastUpdate = null;
-        let bulkSelectMode = false;
-        let selectedOrders = new Set();
-        let currentPage = 1;
-        const ordersPerPage = 10;
-        
-        // Product price mapping (harus sama dengan di website utama)
-        const productPrices = {
-            'Pangsit Original': 15000,
-            'Pangsit Pedas': 20000,
-            'Pangsit Ayam': 25000,
-            'Pangsit Udang': 30000,
-            'Pangsit Sayur': 18000,
-            'Pangsit Goreng': 20000,
-            'Pangsit Kuah': 22000,
-            'Pangsit Special': 35000,
-            'Es Teh': 5000,
-            'Es Jeruk': 6000,
-            'Air Mineral': 3000,
-            'Kopi': 8000
+        // Status yang tersedia
+        const ORDER_STATUS = {
+            PENDING: 'pending',
+            PROCESSING: 'processing',
+            SHIPPED: 'shipped',
+            DELIVERED: 'delivered',
+            CANCELLED: 'cancelled'
         };
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadOrders();
-            
-            // Auto refresh every 5 seconds
-            setInterval(loadOrders, 5000);
-            
-            // Listen for new orders from other tabs/windows
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'pangsit_orders' || e.key === 'new_order') {
-                    playNotification();
-                    loadOrders();
-                }
-            });
-            
-            // Listen for custom events (from same tab)
-            window.addEventListener('newOrder', function(e) {
-                console.log('New order detected:', e.detail);
-                playNotification();
-                loadOrders();
-            });
-            
-            // Simulate receiving orders from main website
-            simulateIncomingOrders();
-        });
+        const PAYMENT_STATUS = {
+            PENDING: 'menunggu',
+            PROCESSING: 'diproses',
+            PAID: 'lunas',
+            CANCELLED: 'dibatalkan'
+        };
         
-        // Load orders from localStorage
+        // Data pesanan
+        let orders = [];
+        
+        // Format Rupiah
+        function formatRupiah(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount || 0);
+        }
+        
+        // Format tanggal
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Ambil data dari localStorage
         function loadOrders() {
             try {
-                // Update last update time
-                document.getElementById('lastUpdate').textContent = 
-                    `Last update: ${new Date().toLocaleTimeString('id-ID')}`;
-                
-                // Get orders from localStorage
-                const ordersData = localStorage.getItem('pangsit_orders');
-                
-                if (ordersData) {
-                    orders = JSON.parse(ordersData);
-                    
-                    // Sort by newest first
-                    orders.sort((a, b) => b.timestamp - a.timestamp);
-                    
-                    // Fix data inconsistencies
-                    fixOrderData();
-                    
-                    // Update display
-                    updateStats();
-                    renderOrders();
-                    checkDataIssues();
-                    
-                    // Check for new orders
-                    checkNewOrders();
-                } else {
-                    // No orders yet
-                    orders = [];
-                    updateStats();
-                    renderOrders();
-                }
-                
+                const data = localStorage.getItem(STORAGE_KEY);
+                orders = data ? JSON.parse(data) : [];
+                updateStats();
+                renderOrdersTable();
             } catch (error) {
                 console.error('Error loading orders:', error);
+                orders = [];
             }
         }
         
-        // Fix data inconsistencies in orders
-        function fixOrderData() {
-            let issuesFixed = 0;
-            
-            orders.forEach(order => {
-                let hasIssue = false;
-                
-                // FIX 1: Standardize customer data structure
-                if (!order.customer && (order.nama || order.name || order.telepon || order.phone || order.alamat || order.address)) {
-                    order.customer = {
-                        name: order.nama || order.name || 'Pelanggan',
-                        phone: order.telepon || order.phone || order.hp || '',
-                        address: order.alamat || order.address || ''
-                    };
-                    hasIssue = true;
-                }
-                
-                // FIX 2: Ensure products array exists and has proper structure
-                if (!order.products || !Array.isArray(order.products)) {
-                    order.products = [];
-                    hasIssue = true;
-                }
-                
-                // FIX 3: Fix product names and prices
-                if (order.products && Array.isArray(order.products)) {
-                    order.products.forEach(product => {
-                        // Standardize product name
-                        const originalName = product.name || product.nama || product.productName || '';
-                        if (originalName) {
-                            // Find matching product name from price list
-                            const matchedProduct = Object.keys(productPrices).find(p => 
-                                originalName.toLowerCase().includes(p.toLowerCase()) || 
-                                p.toLowerCase().includes(originalName.toLowerCase())
-                            );
-                            
-                            if (matchedProduct) {
-                                product.name = matchedProduct;
-                                product.price = productPrices[matchedProduct];
-                            } else {
-                                // If no match, use default price
-                                product.name = originalName;
-                                if (!product.price || product.price === 0) {
-                                    product.price = 15000; // Default price
-                                }
-                            }
-                        }
-                        
-                        // Ensure quantity is a number
-                        product.quantity = parseInt(product.quantity) || 1;
-                        product.price = parseInt(product.price) || 15000;
-                    });
-                }
-                
-                // FIX 4: Recalculate total based on products
-                if (order.products && Array.isArray(order.products) && order.products.length > 0) {
-                    const calculatedTotal = order.products.reduce((sum, p) => {
-                        return sum + (p.price * p.quantity);
-                    }, 0);
-                    
-                    // If current total doesn't match calculated total, update it
-                    if (parseInt(order.total) !== calculatedTotal) {
-                        order.total = calculatedTotal;
-                        hasIssue = true;
-                    }
-                }
-                
-                // FIX 5: Ensure status exists
-                if (!order.status) {
-                    order.status = 'pending';
-                    hasIssue = true;
-                }
-                
-                // FIX 6: Ensure timestamp exists
-                if (!order.timestamp) {
-                    order.timestamp = Date.now();
-                    order.date = new Date().toLocaleString('id-ID');
-                    hasIssue = true;
-                }
-                
-                // FIX 7: Generate ID if missing
-                if (!order.id) {
-                    order.id = 'PANG-' + Date.now().toString().slice(-6) + '-' + Math.random().toString(36).substr(2, 3).toUpperCase();
-                    hasIssue = true;
-                }
-                
-                if (hasIssue) issuesFixed++;
-            });
-            
-            if (issuesFixed > 0) {
-                // Save fixed orders back to localStorage
-                localStorage.setItem('pangsit_orders', JSON.stringify(orders));
-                console.log(`Fixed ${issuesFixed} order data issues`);
+        // Simpan data ke localStorage
+        function saveOrders() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+                updateStats();
+                renderOrdersTable();
+                return true;
+            } catch (error) {
+                console.error('Error saving orders:', error);
+                return false;
             }
         }
         
-        // Check for data issues and display warnings
-        function checkDataIssues() {
-            const warningsContainer = document.getElementById('dataWarnings');
-            warningsContainer.innerHTML = '';
-            
-            let warningCount = 0;
-            
-            orders.forEach((order, index) => {
-                let warnings = [];
-                
-                // Check for missing customer info
-                if (!order.customer?.name || order.customer.name === 'Pelanggan') {
-                    warnings.push('Nama pemesan tidak lengkap');
-                }
-                
-                if (!order.customer?.phone) {
-                    warnings.push('Nomor telepon tidak ada');
-                }
-                
-                // Check for product issues
-                if (!order.products || order.products.length === 0) {
-                    warnings.push('Daftar makanan kosong');
-                } else {
-                    order.products.forEach(product => {
-                        if (!product.name) {
-                            warnings.push('Nama produk tidak jelas');
-                        }
-                        if (!product.price || product.price === 0) {
-                            warnings.push('Harga produk nol atau tidak ada');
-                        }
-                    });
-                }
-                
-                // Check total mismatch
-                if (order.products && order.products.length > 0) {
-                    const calculatedTotal = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-                    if (Math.abs(parseInt(order.total) - calculatedTotal) > 100) {
-                        warnings.push('Total harga tidak sesuai');
-                    }
-                }
-                
-                if (warnings.length > 0) {
-                    warningCount++;
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'data-warning';
-                    warningDiv.innerHTML = `
-                        <i class="fas fa-exclamation-triangle" style="color: #ff6b35;"></i>
-                        <div>
-                            <strong>Order ${order.id || '#'+index}:</strong> ${warnings.join(', ')}
-                            <button onclick="fixSingleOrder('${order.id || index}')" style="
-                                margin-left: 10px;
-                                background: var(--primary);
-                                color: white;
-                                border: none;
-                                padding: 2px 8px;
-                                border-radius: 4px;
-                                font-size: 12px;
-                                cursor: pointer;
-                            ">Perbaiki</button>
-                        </div>
-                    `;
-                    warningsContainer.appendChild(warningDiv);
-                }
-            });
-            
-            if (warningCount > 0) {
-                const summaryDiv = document.createElement('div');
-                summaryDiv.className = 'data-warning';
-                summaryDiv.innerHTML = `
-                    <i class="fas fa-exclamation-circle" style="color: #ffc107;"></i>
-                    <div><strong>Ditemukan ${warningCount} order dengan masalah data.</strong> Klik "Fix Data Issues" untuk memperbaiki semua.</div>
-                `;
-                warningsContainer.insertBefore(summaryDiv, warningsContainer.firstChild);
-            }
-        }
-        
-        // Fix a single order
-        function fixSingleOrder(orderId) {
-            const orderIndex = orders.findIndex(o => o.id === orderId || orders.indexOf(o) === parseInt(orderId));
-            
-            if (orderIndex === -1) return;
-            
-            const order = orders[orderIndex];
-            
-            // Fix customer info
-            if (!order.customer) order.customer = {};
-            order.customer.name = order.customer.name || order.nama || order.name || 'Pelanggan';
-            order.customer.phone = order.customer.phone || order.telepon || order.phone || order.hp || '';
-            order.customer.address = order.customer.address || order.alamat || order.address || '';
-            
-            // Fix products
-            if (order.products && Array.isArray(order.products)) {
-                order.products.forEach(product => {
-                    if (!product.name) product.name = 'Produk';
-                    if (!product.price || product.price === 0) product.price = 15000;
-                    product.quantity = parseInt(product.quantity) || 1;
-                });
-                
-                // Recalculate total
-                order.total = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-            }
-            
-            // Save back
-            localStorage.setItem('pangsit_orders', JSON.stringify(orders));
-            loadOrders();
-            
-            alert(`Order ${orderId} telah diperbaiki`);
-        }
-        
-        // Fix all data issues
-        function fixDataMismatch() {
-            if (orders.length === 0) return;
-            
-            if (confirm('Perbaiki SEMUA masalah data pada semua order?')) {
-                orders.forEach(order => {
-                    // Standardize structure
-                    if (!order.customer) {
-                        order.customer = {
-                            name: order.nama || order.name || 'Pelanggan',
-                            phone: order.telepon || order.phone || order.hp || '',
-                            address: order.alamat || order.address || ''
-                        };
-                    }
-                    
-                    // Fix products array
-                    if (!order.products || !Array.isArray(order.products)) {
-                        order.products = [];
-                    }
-                    
-                    // Fix product details
-                    if (order.products && Array.isArray(order.products)) {
-                        order.products.forEach(product => {
-                            // Find product in price list
-                            const productName = product.name || product.nama || product.productName || '';
-                            if (productName) {
-                                const matchedProduct = Object.keys(productPrices).find(p => 
-                                    productName.toLowerCase().includes(p.toLowerCase())
-                                );
-                                
-                                if (matchedProduct) {
-                                    product.name = matchedProduct;
-                                    product.price = productPrices[matchedProduct];
-                                } else {
-                                    product.name = productName;
-                                    product.price = product.price || 15000;
-                                }
-                            }
-                            
-                            product.quantity = parseInt(product.quantity) || 1;
-                            product.price = parseInt(product.price) || 15000;
-                        });
-                        
-                        // Recalculate total
-                        order.total = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-                    }
-                    
-                    // Ensure status
-                    if (!order.status) order.status = 'pending';
-                    
-                    // Ensure ID
-                    if (!order.id) {
-                        order.id = 'PANG-' + Date.now().toString().slice(-6) + '-' + Math.random().toString(36).substr(2, 3).toUpperCase();
-                    }
-                });
-                
-                // Save fixed data
-                localStorage.setItem('pangsit_orders', JSON.stringify(orders));
-                loadOrders();
-                
-                alert(`Semua ${orders.length} order telah diperbaiki!`);
-            }
-        }
-        
-        // Update statistics
+        // Update statistik
         function updateStats() {
-            const totalOrders = orders.length;
-            const newOrders = orders.filter(o => o.status === 'pending').length;
+            // Total pesanan
+            document.getElementById('totalOrders').textContent = orders.length;
             
-            // Count today's orders
-            const today = new Date().toDateString();
-            const todayOrders = orders.filter(o => {
-                const orderDate = new Date(o.timestamp).toDateString();
-                return orderDate === today;
-            }).length;
+            // Total pendapatan (hitung dari pesanan yang sudah dibayar)
+            const totalRevenue = orders
+                .filter(order => order.paymentStatus === PAYMENT_STATUS.PAID)
+                .reduce((sum, order) => sum + (order.total || 0), 0);
+            document.getElementById('totalRevenue').textContent = formatRupiah(totalRevenue);
             
-            // Calculate total revenue
-            const totalRevenue = orders.reduce((total, order) => {
-                return total + (parseInt(order.total) || 0);
-            }, 0);
+            // Pesanan pending
+            const pendingOrders = orders.filter(order => 
+                order.status === ORDER_STATUS.PENDING || 
+                order.paymentStatus === PAYMENT_STATUS.PENDING
+            ).length;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
             
-            document.getElementById('totalOrders').textContent = totalOrders;
-            document.getElementById('newOrders').textContent = newOrders;
-            document.getElementById('todayOrders').textContent = todayOrders;
-            document.getElementById('totalRevenue').textContent = 'Rp ' + totalRevenue.toLocaleString();
-            
-            // Update orders count
-            document.getElementById('ordersCount').textContent = `(${totalOrders} orders)`;
+            // Total pelanggan (unique)
+            const uniqueCustomers = [...new Set(orders.map(order => 
+                order.customer?.phone || order.customer?.email || ''
+            ))].filter(Boolean).length;
+            document.getElementById('totalCustomers').textContent = uniqueCustomers;
         }
         
-        // Render orders with pagination
-        function renderOrders() {
-            const ordersList = document.getElementById('ordersList');
-            const pagination = document.getElementById('pagination');
+        // Render tabel pesanan
+        function renderOrdersTable() {
+            const tableBody = document.getElementById('ordersTableBody');
+            if (!tableBody) return;
             
-            if (orders.length === 0) {
-                ordersList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <h3>No orders yet</h3>
-                        <p>Waiting for customers to place orders</p>
-                    </div>
+            // Filter berdasarkan search
+            const searchTerm = document.getElementById('searchOrder')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('filterStatus')?.value || '';
+            
+            let filteredOrders = orders.filter(order => {
+                // Filter search
+                const matchesSearch = !searchTerm || 
+                    order.id?.toLowerCase().includes(searchTerm) ||
+                    order.customer?.name?.toLowerCase().includes(searchTerm) ||
+                    order.customer?.phone?.includes(searchTerm);
+                
+                // Filter status
+                const matchesStatus = !statusFilter || 
+                    order.status === statusFilter ||
+                    (statusFilter === 'pending' && order.paymentStatus === PAYMENT_STATUS.PENDING);
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            // Urutkan berdasarkan tanggal terbaru
+            filteredOrders.sort((a, b) => {
+                const dateA = new Date(a.createdAt || a.timestamp || 0);
+                const dateB = new Date(b.createdAt || b.timestamp || 0);
+                return dateB - dateA;
+            });
+            
+            tableBody.innerHTML = '';
+            
+            if (filteredOrders.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i>
+                            <p>Tidak ada pesanan</p>
+                        </td>
+                    </tr>
                 `;
-                pagination.innerHTML = '';
                 return;
             }
             
-            // Calculate pagination
-            const totalPages = Math.ceil(orders.length / ordersPerPage);
-            const startIndex = (currentPage - 1) * ordersPerPage;
-            const endIndex = Math.min(startIndex + ordersPerPage, orders.length);
-            const currentOrders = orders.slice(startIndex, endIndex);
-            
-            // Render orders for current page
-            ordersList.innerHTML = currentOrders.map(order => {
-                const isNew = order.status === 'pending';
-                const isProses = order.status === 'processing';
-                const isSelesai = order.status === 'completed';
+            filteredOrders.forEach(order => {
+                const row = document.createElement('tr');
                 
-                const cardClass = isNew ? 'order-card new' : 
-                                 isProses ? 'order-card proses' : 
-                                 'order-card selesai';
+                // Tentukan badge status pesanan
+                let statusBadge = '';
+                let statusText = '';
                 
-                const statusClass = isNew ? 'status-new' : 
-                                   isProses ? 'status-proses' : 'status-selesai';
-                
-                const statusText = isNew ? 'BARU' : 
-                                  isProses ? 'DIPROSES' : 'SELESAI';
-                
-                // Calculate total from products (ensure accuracy)
-                let totalAmount = 0;
-                if (order.products && Array.isArray(order.products)) {
-                    totalAmount = order.products.reduce((sum, p) => {
-                        const price = parseInt(p.price) || 0;
-                        const quantity = parseInt(p.quantity) || 1;
-                        return sum + (price * quantity);
-                    }, 0);
-                } else if (order.total) {
-                    totalAmount = parseInt(order.total) || 0;
+                switch(order.status) {
+                    case ORDER_STATUS.PENDING:
+                        statusBadge = 'badge-new';
+                        statusText = 'Baru';
+                        break;
+                    case ORDER_STATUS.PROCESSING:
+                        statusBadge = 'badge-processing';
+                        statusText = 'Diproses';
+                        break;
+                    case ORDER_STATUS.SHIPPED:
+                        statusBadge = 'badge-shipped';
+                        statusText = 'Dikirim';
+                        break;
+                    case ORDER_STATUS.DELIVERED:
+                        statusBadge = 'badge-delivered';
+                        statusText = 'Selesai';
+                        break;
+                    case ORDER_STATUS.CANCELLED:
+                        statusBadge = 'badge-cancelled';
+                        statusText = 'Batal';
+                        break;
+                    default:
+                        statusBadge = 'badge-new';
+                        statusText = 'Baru';
                 }
                 
-                // Format date properly
-                const orderDate = order.timestamp ? 
-                    new Date(order.timestamp).toLocaleString('id-ID') : 
-                    order.date || 'Unknown date';
+                // Tentukan badge status pembayaran
+                let paymentBadge = '';
+                let paymentText = '';
                 
-                // Get customer info from standardized structure
-                const customerName = order.customer?.name || 'Pelanggan';
-                const customerPhone = order.customer?.phone || '';
-                const customerAddress = order.customer?.address || '';
+                switch(order.paymentStatus) {
+                    case PAYMENT_STATUS.PAID:
+                        paymentBadge = 'payment-paid';
+                        paymentText = 'LUNAS';
+                        break;
+                    case PAYMENT_STATUS.PROCESSING:
+                        paymentBadge = 'payment-pending';
+                        paymentText = 'DIPROSES';
+                        break;
+                    case PAYMENT_STATUS.CANCELLED:
+                        paymentBadge = 'payment-failed';
+                        paymentText = 'BATAL';
+                        break;
+                    default:
+                        paymentBadge = 'payment-pending';
+                        paymentText = 'MENUNGGU';
+                }
                 
-                // Check if this order has data issues
-                const hasDataIssue = !order.customer?.name || order.customer.name === 'Pelanggan' || 
-                                    !order.products || order.products.length === 0 ||
-                                    (order.products && order.products.some(p => !p.name || !p.price));
-                
-                return `
-                    <div class="${cardClass}" data-id="${order.id}">
-                        ${hasDataIssue ? `
-                            <div class="data-warning" style="margin-bottom: 10px; padding: 8px; font-size: 12px;">
-                                <i class="fas fa-exclamation-triangle"></i> Data perlu diverifikasi
-                            </div>
-                        ` : ''}
-                        
-                        ${bulkSelectMode ? `
-                            <div style="margin-bottom: 10px;">
-                                <input type="checkbox" class="order-checkbox" 
-                                       data-id="${order.id}" 
-                                       onchange="toggleOrderSelection('${order.id}')"
-                                       ${selectedOrders.has(order.id) ? 'checked' : ''}>
-                                <label>Select this order</label>
-                            </div>
-                        ` : ''}
-                        
-                        <div class="order-header">
-                            <div class="order-id">${order.id || 'N/A'}</div>
-                            <div class="order-time">${orderDate}</div>
-                        </div>
-                        
-                        <div class="customer-info">
-                            <div class="customer-name">
-                                <i class="fas fa-user"></i> ${customerName}
-                            </div>
-                            ${customerPhone ? `
-                                <div class="customer-phone">
-                                    <i class="fas fa-phone"></i> ${customerPhone}
-                                </div>
-                            ` : ''}
-                            ${customerAddress ? `
-                                <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                                    <i class="fas fa-map-marker-alt"></i> ${customerAddress}
-                                </div>
-                            ` : ''}
-                            ${order.note || order.catatan ? `
-                                <div style="color: #666; font-size: 14px; margin-top: 5px; padding: 5px; background: #fff3cd; border-radius: 5px;">
-                                    <i class="fas fa-sticky-note"></i> Catatan: ${order.note || order.catatan}
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        ${order.products && order.products.length > 0 ? `
-                            <div class="items-list">
-                                <div style="font-weight: bold; margin-bottom: 10px;">Items:</div>
-                                ${order.products.map(p => {
-                                    const itemName = p.name || 'Produk';
-                                    const quantity = parseInt(p.quantity) || 1;
-                                    const price = parseInt(p.price) || 0;
-                                    const subtotal = quantity * price;
-                                    
-                                    return `
-                                        <div class="item-row">
-                                            <div class="item-name">${itemName}</div>
-                                            <div class="item-qty">x${quantity}</div>
-                                            <div class="item-price">Rp ${price.toLocaleString()} × ${quantity} = Rp ${subtotal.toLocaleString()}</div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        ` : ''}
-                        
-                        <div class="order-total">
-                            Total: Rp ${totalAmount.toLocaleString()}
-                        </div>
-                        
-                        <div class="status-badge ${statusClass}">
-                            ${statusText}
-                        </div>
-                        
-                        <div class="actions">
-                            ${customerPhone ? `
-                                <button class="action-btn btn-wa" onclick="whatsappCustomer('${customerPhone}', '${order.id || ''}')">
-                                    <i class="fab fa-whatsapp"></i> WA
-                                </button>
-                                <button class="action-btn btn-call" onclick="callCustomer('${customerPhone}')">
-                                    <i class="fas fa-phone"></i> Call
-                                </button>
-                            ` : `
-                                <button class="action-btn btn-wa" disabled>
-                                    <i class="fab fa-whatsapp"></i> WA
-                                </button>
-                                <button class="action-btn btn-call" disabled>
-                                    <i class="fas fa-phone"></i> Call
-                                </button>
-                            `}
-                            <button class="action-btn btn-update" onclick="updateStatus('${order.id}')">
-                                <i class="fas fa-check"></i> Update
+                row.innerHTML = `
+                    <td>
+                        <strong>${order.id || 'N/A'}</strong><br>
+                        <small style="color: #666;">${order.paymentMethod ? order.paymentMethod.toUpperCase() : 'N/A'}</small>
+                    </td>
+                    <td>${order.date || 'N/A'}<br>${order.time || ''}</td>
+                    <td>
+                        <strong>${order.customer?.name || 'N/A'}</strong><br>
+                        <small>${order.customer?.phone || 'N/A'}</small>
+                    </td>
+                    <td><strong>${formatRupiah(order.total || 0)}</strong></td>
+                    <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
+                    <td><span class="payment-badge ${paymentBadge}">${paymentText}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewOrderDetail('${order.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action btn-process" onclick="updateOrderStatus('${order.id}', 'processing')" 
+                                    ${order.status !== 'pending' ? 'disabled style="opacity:0.5"' : ''}>
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="btn-action btn-ship" onclick="updateOrderStatus('${order.id}', 'shipped')"
+                                    ${order.status !== 'processing' ? 'disabled style="opacity:0.5"' : ''}>
+                                <i class="fas fa-truck"></i>
+                            </button>
+                            <button class="btn-action btn-cancel" onclick="updateOrderStatus('${order.id}', 'cancelled')"
+                                    ${order.status === 'cancelled' || order.status === 'delivered' ? 'disabled style="opacity:0.5"' : ''}>
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="btn-action btn-edit" onclick="showPaymentConfirmation('${order.id}')">
+                                <i class="fas fa-credit-card"></i>
                             </button>
                         </div>
-                    </div>
+                    </td>
                 `;
-            }).join('');
-            
-            // Render pagination
-            if (totalPages > 1) {
-                let paginationHTML = '';
                 
-                // Previous button
-                if (currentPage > 1) {
-                    paginationHTML += `
-                        <button class="page-btn" onclick="changePage(${currentPage - 1})">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                    `;
-                }
-                
-                // Page numbers
-                for (let i = 1; i <= totalPages; i++) {
-                    if (i === currentPage) {
-                        paginationHTML += `
-                            <button class="page-btn active">${i}</button>
-                        `;
-                    } else if (i === 1 || i === totalPages || 
-                              (i >= currentPage - 1 && i <= currentPage + 1)) {
-                        paginationHTML += `
-                            <button class="page-btn" onclick="changePage(${i})">${i}</button>
-                        `;
-                    } else if (i === currentPage - 2 || i === currentPage + 2) {
-                        paginationHTML += `<span style="padding: 8px 5px;">...</span>`;
-                    }
-                }
-                
-                // Next button
-                if (currentPage < totalPages) {
-                    paginationHTML += `
-                        <button class="page-btn" onclick="changePage(${currentPage + 1})">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    `;
-                }
-                
-                pagination.innerHTML = paginationHTML;
-            } else {
-                pagination.innerHTML = '';
-            }
+                tableBody.appendChild(row);
+            });
         }
         
-        // Change page
-        function changePage(page) {
-            currentPage = page;
-            renderOrders();
-            // Scroll to top of orders container
-            document.getElementById('ordersContainer').scrollTop = 0;
+        // Tampilkan detail pesanan
+        function viewOrderDetail(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const modal = document.getElementById('orderDetailModal');
+            const content = document.getElementById('orderDetailContent');
+            
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h4>Informasi Pesanan</h4>
+                        <p><strong>ID:</strong> ${order.id}</p>
+                        <p><strong>Tanggal:</strong> ${order.date} ${order.time}</p>
+                        <p><strong>Status:</strong> ${order.status || 'pending'}</p>
+                        <p><strong>Pembayaran:</strong> ${order.paymentStatus || 'menunggu'}</p>
+                        <p><strong>Metode:</strong> ${order.paymentMethod || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <h4>Informasi Pelanggan</h4>
+                        <p><strong>Nama:</strong> ${order.customer?.name || 'N/A'}</p>
+                        <p><strong>Telepon:</strong> ${order.customer?.phone || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${order.customer?.email || 'N/A'}</p>
+                        <p><strong>Alamat:</strong> ${order.customer?.address || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <h4>Items Pesanan</h4>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 10px; text-align: left;">Produk</th>
+                            <th style="padding: 10px; text-align: center;">Qty</th>
+                            <th style="padding: 10px; text-align: right;">Harga</th>
+                            <th style="padding: 10px; text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${order.products ? order.products.map(product => `
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee;">${product.name}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${product.quantity}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatRupiah(product.price)}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatRupiah(product.price * product.quantity)}</td>
+                            </tr>
+                        `).join('') : ''}
+                    </tbody>
+                </table>
+                
+                <div style="float: right; width: 300px; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Subtotal:</span>
+                        <span>${formatRupiah(order.subtotal || 0)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Pengiriman:</span>
+                        <span>${formatRupiah(order.shipping || 0)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Pajak:</span>
+                        <span>${formatRupiah(order.tax || 0)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; border-top: 2px solid #ff6b35; padding-top: 10px;">
+                        <span>TOTAL:</span>
+                        <span style="color: #ff6b35;">${formatRupiah(order.total || 0)}</span>
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+                
+                ${order.notes ? `
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        <h4>Catatan Pelanggan</h4>
+                        <p>${order.notes}</p>
+                    </div>
+                ` : ''}
+                
+                <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn-action" style="background: #28a745; color: white; padding: 10px 20px;" 
+                            onclick="printOrder('${order.id}')">
+                        <i class="fas fa-print"></i> Cetak
+                    </button>
+                    <button class="btn-action" style="background: #17a2b8; color: white; padding: 10px 20px;" 
+                            onclick="closeModal()">
+                        <i class="fas fa-times"></i> Tutup
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.add('active');
         }
         
-        // Check for new orders
-        function checkNewOrders() {
-            if (!lastUpdate) {
-                lastUpdate = Date.now();
-                return;
+        // Update status pesanan
+        function updateOrderStatus(orderId, newStatus) {
+            if (!confirm(`Ubah status pesanan ${orderId} menjadi ${newStatus}?`)) return;
+            
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) return;
+            
+            orders[orderIndex].status = newStatus;
+            orders[orderIndex].updatedAt = new Date().toISOString();
+            
+            // Jika status menjadi delivered, otomatis set payment jadi lunas
+            if (newStatus === ORDER_STATUS.DELIVERED && orders[orderIndex].paymentStatus !== PAYMENT_STATUS.PAID) {
+                orders[orderIndex].paymentStatus = PAYMENT_STATUS.PAID;
             }
             
-            const newOrders = orders.filter(order => {
-                const orderTime = order.timestamp || new Date(order.date).getTime();
-                return orderTime > lastUpdate;
+            // Jika status dibatalkan, otomatis set payment jadi dibatalkan
+            if (newStatus === ORDER_STATUS.CANCELLED && orders[orderIndex].paymentStatus !== PAYMENT_STATUS.CANCELLED) {
+                orders[orderIndex].paymentStatus = PAYMENT_STATUS.CANCELLED;
+            }
+            
+            saveOrders();
+            alert(`Status pesanan ${orderId} berhasil diubah!`);
+        }
+        
+        // Tampilkan modal konfirmasi pembayaran
+        function showPaymentConfirmation(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const modal = document.getElementById('paymentModal');
+            const content = document.getElementById('paymentContent');
+            
+            content.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h4 style="color: #ff6b35;">Konfirmasi Pembayaran</h4>
+                    <p>Order ID: <strong>${order.id}</strong></p>
+                    <p>Pelanggan: <strong>${order.customer?.name || 'N/A'}</strong></p>
+                    <p>Total: <strong style="font-size: 24px;">${formatRupiah(order.total)}</strong></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status Pembayaran</label>
+                    <select id="paymentStatusSelect" class="form-control">
+                        <option value="${PAYMENT_STATUS.PENDING}" ${order.paymentStatus === PAYMENT_STATUS.PENDING ? 'selected' : ''}>
+                            Menunggu Pembayaran
+                        </option>
+                        <option value="${PAYMENT_STATUS.PROCESSING}" ${order.paymentStatus === PAYMENT_STATUS.PROCESSING ? 'selected' : ''}>
+                            Pembayaran Diproses
+                        </option>
+                        <option value="${PAYMENT_STATUS.PAID}" ${order.paymentStatus === PAYMENT_STATUS.PAID ? 'selected' : ''}>
+                            LUNAS
+                        </option>
+                        <option value="${PAYMENT_STATUS.CANCELLED}" ${order.paymentStatus === PAYMENT_STATUS.CANCELLED ? 'selected' : ''}>
+                            Dibatalkan
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Catatan Admin (Opsional)</label>
+                    <textarea id="adminNote" class="form-control" rows="3" placeholder="Contoh: Transfer sudah diterima, dll.">${order.adminNote || ''}</textarea>
+                </div>
+                
+                <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn-action" style="background: #28a745; color: white; padding: 10px 20px;" 
+                            onclick="confirmPayment('${order.id}')">
+                        <i class="fas fa-check"></i> Simpan
+                    </button>
+                    <button class="btn-action" style="background: #dc3545; color: white; padding: 10px 20px;" 
+                            onclick="closePaymentModal()">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+        
+        // Konfirmasi pembayaran
+        function confirmPayment(orderId) {
+            const paymentStatus = document.getElementById('paymentStatusSelect').value;
+            const adminNote = document.getElementById('adminNote').value;
+            
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) return;
+            
+            orders[orderIndex].paymentStatus = paymentStatus;
+            orders[orderIndex].adminNote = adminNote;
+            orders[orderIndex].updatedAt = new Date().toISOString();
+            
+            // Jika pembayaran lunas, ubah status pesanan jadi processing
+            if (paymentStatus === PAYMENT_STATUS.PAID && orders[orderIndex].status === ORDER_STATUS.PENDING) {
+                orders[orderIndex].status = ORDER_STATUS.PROCESSING;
+            }
+            
+            // Jika pembayaran dibatalkan, ubah status pesanan jadi cancelled
+            if (paymentStatus === PAYMENT_STATUS.CANCELLED && orders[orderIndex].status !== ORDER_STATUS.CANCELLED) {
+                orders[orderIndex].status = ORDER_STATUS.CANCELLED;
+            }
+            
+            saveOrders();
+            closePaymentModal();
+            alert(`Status pembayaran ${orderId} berhasil diupdate!`);
+        }
+        
+        // Cetak order
+        function printOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice ${order.id}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .invoice-header { text-align: center; margin-bottom: 30px; }
+                        .invoice-logo { font-size: 28px; font-weight: bold; color: #ff6b35; }
+                        .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        .invoice-table th, .invoice-table td { padding: 10px; border: 1px solid #ddd; }
+                        .invoice-table th { background-color: #f5f5f5; }
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-header">
+                        <div class="invoice-logo">PANGS!T STORE</div>
+                        <p>Jl.panongan desa panongan kec panongan kabupaten tangerang</p>
+                        <p>Telepon: +62 831-9524-3139</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <h4>INVOICE</h4>
+                            <p><strong>No:</strong> ${order.id}</p>
+                            <p><strong>Tanggal:</strong> ${order.date} ${order.time}</p>
+                            <p><strong>Status:</strong> ${order.status}</p>
+                            <p><strong>Pembayaran:</strong> ${order.paymentStatus}</p>
+                        </div>
+                        <div>
+                            <h4>PELANGGAN</h4>
+                            <p><strong>Nama:</strong> ${order.customer?.name || 'N/A'}</p>
+                            <p><strong>Telp:</strong> ${order.customer?.phone || 'N/A'}</p>
+                            <p><strong>Alamat:</strong> ${order.customer?.address || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Qty</th>
+                                <th>Harga</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${order.products ? order.products.map(product => `
+                                <tr>
+                                    <td>${product.name}</td>
+                                    <td>${product.quantity}</td>
+                                    <td>Rp ${product.price.toLocaleString()}</td>
+                                    <td>Rp ${(product.price * product.quantity).toLocaleString()}</td>
+                                </tr>
+                            `).join('') : ''}
+                        </tbody>
+                    </table>
+                    
+                    <div style="float: right; width: 300px; margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Subtotal:</span>
+                            <span>Rp ${(order.subtotal || 0).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Pengiriman:</span>
+                            <span>Rp ${(order.shipping || 0).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Pajak:</span>
+                            <span>Rp ${(order.tax || 0).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 20px; border-top: 2px solid #ff6b35; padding-top: 10px;">
+                            <span>TOTAL:</span>
+                            <span>Rp ${(order.total || 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div style="clear: both;"></div>
+                    
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+                        <p><strong>Catatan:</strong> ${order.notes || 'Tidak ada catatan'}</p>
+                        <p><strong>Catatan Admin:</strong> ${order.adminNote || 'Tidak ada catatan'}</p>
+                    </div>
+                    
+                    <div class="no-print" style="text-align: center; margin-top: 30px;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #ff6b35; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Cetak Invoice
+                        </button>
+                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                            Tutup
+                        </button>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+        
+        // Tutup modal
+        function closeModal() {
+            document.getElementById('orderDetailModal').classList.remove('active');
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+        }
+        
+        // Update waktu real-time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
             });
             
-            if (newOrders.length > 0) {
-                playNotification();
-                showNotification(newOrders.length);
-            }
-            
-            lastUpdate = Date.now();
-        }
-        
-        // Play notification sound
-        function playNotification() {
-            if (soundEnabled) {
-                const sound = document.getElementById('notificationSound');
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log('Audio error:', e));
+            const timeElement = document.getElementById('currentTime');
+            if (timeElement) {
+                timeElement.textContent = timeString;
             }
         }
         
-        // Show notification
-        function showNotification(count) {
-            // Remove existing notification
-            const existing = document.getElementById('liveNotification');
-            if (existing) existing.remove();
-            
-            // Create notification
-            const notif = document.createElement('div');
-            notif.id = 'liveNotification';
-            notif.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #ff6b35, #ff8e53);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(255,107,53,0.3);
-                z-index: 9999;
-                animation: slideIn 0.4s ease;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                max-width: 350px;
-                border: 2px solid white;
-            `;
-            
-            notif.innerHTML = `
-                <div style="font-size: 24px;">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div>
-                    <div style="font-weight: 800; font-size: 18px;">${count} ORDER BARU!</div>
-                    <div style="font-size: 14px;">Terdeteksi dari customer</div>
-                </div>
-                <button onclick="this.parentElement.remove()" style="
-                    background: none;
-                    border: none;
-                    color: white;
-                    font-size: 20px;
-                    cursor: pointer;
-                    margin-left: auto;
-                ">×</button>
-            `;
-            
-            document.body.appendChild(notif);
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (notif.parentElement) notif.remove();
+        // Setup tab navigation
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.nav-admin a');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.main-content > div').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    document.getElementById(`${tabId}Tab`).style.display = 'block';
+                });
+            });
+        }
+        
+        // Auto-refresh data setiap 5 detik
+        function autoRefresh() {
+            setInterval(() => {
+                loadOrders();
             }, 5000);
         }
         
-        // WhatsApp customer
-        function whatsappCustomer(phone, orderId) {
-            if (!phone) {
-                alert('No phone number available');
-                return;
+        // Inisialisasi
+        function init() {
+            loadOrders();
+            setupTabs();
+            updateTime();
+            setInterval(updateTime, 1000);
+            autoRefresh();
+            
+            // Event listener untuk search
+            const searchInput = document.getElementById('searchOrder');
+            const filterSelect = document.getElementById('filterStatus');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', renderOrdersTable);
             }
             
-            // Clean phone number
-            const cleanPhone = phone.replace(/\D/g, '');
-            if (cleanPhone.length < 10) {
-                alert('Nomor telepon tidak valid');
-                return;
+            if (filterSelect) {
+                filterSelect.addEventListener('change', renderOrdersTable);
             }
             
-            const message = `Halo, ini dari PANGS!T.\n\nPesanan ${orderId} sedang kami proses.\nTerima kasih!`;
-            const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
+            console.log('✅ Admin Panel siap!');
         }
         
-        // Call customer
-        function callCustomer(phone) {
-            if (!phone) {
-                alert('No phone number available');
-                return;
-            }
-            window.open(`tel:${phone}`, '_self');
-        }
-        
-        // Update order status
-        function updateStatus(orderId) {
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            if (orderIndex === -1) {
-                alert('Order tidak ditemukan');
-                return;
-            }
-            
-            // Cycle through statuses
-            const statuses = ['pending', 'processing', 'completed'];
-            const currentStatus = orders[orderIndex].status || 'pending';
-            const currentIndex = statuses.indexOf(currentStatus);
-            const nextIndex = (currentIndex + 1) % statuses.length;
-            const nextStatus = statuses[nextIndex];
-            
-            // Update order
-            orders[orderIndex].status = nextStatus;
-            orders[orderIndex].updatedAt = Date.now();
-            
-            // Save to localStorage
-            localStorage.setItem('pangsit_orders', JSON.stringify(orders));
-            
-            // Update display
-            renderOrders();
-            updateStats();
-            
-            // Show confirmation
-            const statusText = nextStatus === 'pending' ? 'BARU' :
-                              nextStatus === 'processing' ? 'DIPROSES' : 'SELESAI';
-            alert(`Status order ${orderId} diubah menjadi: ${statusText}`);
-        }
-        
-        // Export orders
-        function exportOrders() {
-            if (orders.length === 0) {
-                alert('No orders to export');
-                return;
-            }
-            
-            const dataStr = JSON.stringify(orders, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `pangsit_orders_${Date.now()}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-        }
-        
-        // Clear all orders
-        function clearOrders() {
-            if (confirm('Hapus SEMUA data order? Tindakan ini tidak bisa dibatalkan!')) {
-                localStorage.removeItem('pangsit_orders');
-                orders = [];
-                selectedOrders.clear();
-                updateStats();
-                renderOrders();
-                alert('Semua data order telah dihapus');
-            }
-        }
-        
-        // Toggle sound
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            const icon = document.getElementById('soundIcon');
-            const toggle = document.getElementById('soundToggle');
-            
-            if (soundEnabled) {
-                icon.className = 'fas fa-volume-up';
-                toggle.style.background = 'white';
-                toggle.style.color = '#ff6b35';
-            } else {
-                icon.className = 'fas fa-volume-mute';
-                toggle.style.background = '#666';
-                toggle.style.color = 'white';
-            }
-        }
-        
-        // Toggle bulk select mode
-        function toggleBulkSelect() {
-            bulkSelectMode = !bulkSelectMode;
-            selectedOrders.clear();
-            document.getElementById('bulkActions').classList.remove('show');
-            document.getElementById('selectedCount').textContent = '0';
-            renderOrders();
-        }
-        
-        // Toggle order selection
-        function toggleOrderSelection(orderId) {
-            if (selectedOrders.has(orderId)) {
-                selectedOrders.delete(orderId);
-            } else {
-                selectedOrders.add(orderId);
-            }
-            
-            document.getElementById('selectedCount').textContent = selectedOrders.size;
-            
-            // Show/hide bulk actions
-            if (selectedOrders.size > 0) {
-                document.getElementById('bulkActions').classList.add('show');
-            } else {
-                document.getElementById('bulkActions').classList.remove('show');
-            }
-        }
-        
-        // Update status for selected orders
-        function updateBulkStatus(status) {
-            if (selectedOrders.size === 0) {
-                alert('Pilih order terlebih dahulu');
-                return;
-            }
-            
-            const statusText = status === 'pending' ? 'BARU' :
-                              status === 'processing' ? 'DIPROSES' : 'SELESAI';
-            
-            if (!confirm(`Ubah ${selectedOrders.size} order menjadi status "${statusText}"?`)) {
-                return;
-            }
-            
-            selectedOrders.forEach(orderId => {
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = status;
-                    orders[orderIndex].updatedAt = Date.now();
-                }
-            });
-            
-            // Save to localStorage
-            localStorage.setItem('pangsit_orders', JSON.stringify(orders));
-            
-            // Update display
-            renderOrders();
-            updateStats();
-            clearSelection();
-            
-            alert(`${selectedOrders.size} order berhasil diupdate!`);
-        }
-        
-        // Clear selection
-        function clearSelection() {
-            selectedOrders.clear();
-            document.getElementById('bulkActions').classList.remove('show');
-            document.getElementById('selectedCount').textContent = '0';
-            renderOrders();
-        }
-        
-        // Simulate incoming orders (for testing)
-        function simulateIncomingOrders() {
-            // Check for sample orders every 30 seconds
-            setInterval(() => {
-                if (orders.length < 2) {
-                    loadSampleData();
-                }
-            }, 30000);
-        }
-        
-        // Load sample data for demo
-        function loadSampleData() {
-            const sampleOrders = [
-                {
-                    id: 'PANG-' + Date.now().toString().slice(-6),
-                    customer: {
-                        name: 'Budi Santoso',
-                        phone: '081234567890',
-                        address: 'Jl. Merdeka No. 123, Jakarta'
-                    },
-                    products: [
-                        { name: 'Pangsit Pedas', quantity: 2, price: 20000 },
-                        { name: 'Pangsit Ayam', quantity: 1, price: 25000 },
-                        { name: 'Es Teh', quantity: 3, price: 5000 }
-                    ],
-                    total: 70000,
-                    status: 'pending',
-                    timestamp: Date.now(),
-                    date: new Date().toLocaleString('id-ID'),
-                    note: 'Tolong pedas sekali'
-                },
-                {
-                    id: 'PANG-' + (Date.now() + 1).toString().slice(-6),
-                    customer: {
-                        name: 'Siti Rahayu',
-                        phone: '081987654321',
-                        address: 'Jl. Sudirman No. 45, Bandung'
-                    },
-                    products: [
-                        { name: 'Pangsit Udang', quantity: 5, price: 30000 },
-                        { name: 'Pangsit Sayur', quantity: 3, price: 18000 },
-                        { name: 'Air Mineral', quantity: 2, price: 3000 }
-                    ],
-                    total: 216000,
-                    status: 'processing',
-                    timestamp: Date.now() - 3600000,
-                    date: new Date(Date.now() - 3600000).toLocaleString('id-ID')
-                },
-                {
-                    id: 'PANG-' + (Date.now() + 2).toString().slice(-6),
-                    customer: {
-                        name: 'Ahmad Fauzi',
-                        phone: '082112345678',
-                        address: 'Jl. Gatot Subroto No. 88, Surabaya'
-                    },
-                    products: [
-                        { name: 'Pangsit Goreng', quantity: 10, price: 20000 },
-                        { name: 'Pangsit Kuah', quantity: 5, price: 22000 }
-                    ],
-                    total: 310000,
-                    status: 'completed',
-                    timestamp: Date.now() - 7200000,
-                    date: new Date(Date.now() - 7200000).toLocaleString('id-ID')
-                }
-            ];
-            
-            // Merge with existing orders
-            const existingOrders = JSON.parse(localStorage.getItem('pangsit_orders') || '[]');
-            const mergedOrders = [...existingOrders];
-            
-            // Add sample orders if they don't exist
-            sampleOrders.forEach(sample => {
-                const exists = mergedOrders.some(order => order.id === sample.id);
-                if (!exists) {
-                    mergedOrders.push(sample);
-                }
-            });
-            
-            localStorage.setItem('pangsit_orders', JSON.stringify(mergedOrders));
-            orders = mergedOrders;
-            updateStats();
-            renderOrders();
-            
-            // Show notification if new orders were added
-            if (sampleOrders.length > 0) {
-                playNotification();
-                showNotification(sampleOrders.length);
-            }
-        }
-        
-        console.log('✅ Admin Dashboard FIXED VERSION ready!');
-        console.log('✅ Data consistency issues have been addressed.');
+        // Jalankan saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', init);
     </script>
-    
 </body>
 </html>
