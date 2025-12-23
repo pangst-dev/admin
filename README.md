@@ -1,15 +1,12 @@
-# 🥟 PANGS!T - Admin Panel
+# Admin PANGS!T Dashboard
 
-## 🔗 Admin Panel URL
-**URL:** `https://pangst-dev.github.io/pangsit-toko-online/admin-live-pangsit.html`
+Live admin dashboard for restaurant orders management.
 
-## 📱 Features
-✅ **Real-time** - Orders appear automatically  
-✅ **Sound notifications** - "Ding!" for new orders  
-✅ **Auto-refresh** - Every 5 seconds  
-✅ **Update status** - New → Processing → Completed  
-✅ **Direct WhatsApp** - Chat customer with 1 click  
-✅ **Call customer** - Phone directly from panel  
-✅ **Export data** - Download all orders as JSON  
+## Features
+- Real-time order tracking
+- Customer contact integration
+- Local storage data persistence
+- Responsive design
 
-## 📁 Required Files
+## Live Demo
+[https://username.github.io/admin-pangsit/](https://username.github.io/admin-pangsit/)
