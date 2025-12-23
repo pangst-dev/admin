@@ -1,12 +1,14 @@
-# Admin PANGS!T Dashboard
+# 🍜 PANGS!T Live Admin Dashboard
 
-Live admin dashboard for restaurant orders management.
+**Live Admin Dashboard untuk restoran/cafe dengan integrasi GitHub Pages**
 
-## Features
-- Real-time order tracking
-- Customer contact integration
-- Local storage data persistence
-- Responsive design
+## 🚀 Demo
+- **Admin:** `https://username.github.io/pangsit-admin/`
+- **Order:** `https://username.github.io/pangsit-admin/order.html`
 
-## Live Demo
-[https://username.github.io/admin-pangsit/](https://username.github.io/admin-pangsit/)
+## 🛠️ Quick Setup
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/username/pangsit-admin.git
+cd pangsit-admin
