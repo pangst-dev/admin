@@ -439,6 +439,19 @@
         .order-checkbox {
             margin-right: 10px;
         }
+        
+        /* Data Mismatch Warning */
+        .data-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -507,6 +520,9 @@
             <button class="btn btn-secondary" onclick="clearOrders()">
                 <i class="fas fa-trash"></i> Clear All
             </button>
+            <button class="btn" onclick="fixDataMismatch()">
+                <i class="fas fa-wrench"></i> Fix Data Issues
+            </button>
             <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
                 <span id="lastUpdate">Last update: -</span>
                 <span id="autoRefresh" style="background: #e9ecef; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
@@ -521,6 +537,8 @@
                 <i class="fas fa-bolt"></i> Live Orders
                 <span id="ordersCount" style="font-size: 14px; color: var(--gray);">(0 orders)</span>
             </h2>
+            
+            <div id="dataWarnings"></div>
             
             <div class="orders-list" id="ordersList">
                 <div class="empty-state">
@@ -547,6 +565,7 @@
                 <p><strong>3.</strong> This admin panel reads orders automatically</p>
                 <p><strong>4.</strong> Admin can update status and contact customers</p>
                 <p><strong>5.</strong> Data persists in browser (localStorage)</p>
+                <p><strong>6.</strong> <span style="color: var(--primary); font-weight: bold;">Fixed:</span> Data consistency between order form and admin panel</p>
             </div>
         </div>
     </div>
@@ -567,7 +586,7 @@
     </audio>
     
     <script>
-        // ==================== ADMIN DASHBOARD ====================
+        // ==================== ADMIN DASHBOARD - FIXED VERSION ====================
         
         let orders = [];
         let soundEnabled = true;
@@ -576,6 +595,22 @@
         let selectedOrders = new Set();
         let currentPage = 1;
         const ordersPerPage = 10;
+        
+        // Product price mapping (harus sama dengan di website utama)
+        const productPrices = {
+            'Pangsit Original': 15000,
+            'Pangsit Pedas': 20000,
+            'Pangsit Ayam': 25000,
+            'Pangsit Udang': 30000,
+            'Pangsit Sayur': 18000,
+            'Pangsit Goreng': 20000,
+            'Pangsit Kuah': 22000,
+            'Pangsit Special': 35000,
+            'Es Teh': 5000,
+            'Es Jeruk': 6000,
+            'Air Mineral': 3000,
+            'Kopi': 8000
+        };
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -619,9 +654,13 @@
                     // Sort by newest first
                     orders.sort((a, b) => b.timestamp - a.timestamp);
                     
+                    // Fix data inconsistencies
+                    fixOrderData();
+                    
                     // Update display
                     updateStats();
                     renderOrders();
+                    checkDataIssues();
                     
                     // Check for new orders
                     checkNewOrders();
@@ -634,6 +673,274 @@
                 
             } catch (error) {
                 console.error('Error loading orders:', error);
+            }
+        }
+        
+        // Fix data inconsistencies in orders
+        function fixOrderData() {
+            let issuesFixed = 0;
+            
+            orders.forEach(order => {
+                let hasIssue = false;
+                
+                // FIX 1: Standardize customer data structure
+                if (!order.customer && (order.nama || order.name || order.telepon || order.phone || order.alamat || order.address)) {
+                    order.customer = {
+                        name: order.nama || order.name || 'Pelanggan',
+                        phone: order.telepon || order.phone || order.hp || '',
+                        address: order.alamat || order.address || ''
+                    };
+                    hasIssue = true;
+                }
+                
+                // FIX 2: Ensure products array exists and has proper structure
+                if (!order.products || !Array.isArray(order.products)) {
+                    order.products = [];
+                    hasIssue = true;
+                }
+                
+                // FIX 3: Fix product names and prices
+                if (order.products && Array.isArray(order.products)) {
+                    order.products.forEach(product => {
+                        // Standardize product name
+                        const originalName = product.name || product.nama || product.productName || '';
+                        if (originalName) {
+                            // Find matching product name from price list
+                            const matchedProduct = Object.keys(productPrices).find(p => 
+                                originalName.toLowerCase().includes(p.toLowerCase()) || 
+                                p.toLowerCase().includes(originalName.toLowerCase())
+                            );
+                            
+                            if (matchedProduct) {
+                                product.name = matchedProduct;
+                                product.price = productPrices[matchedProduct];
+                            } else {
+                                // If no match, use default price
+                                product.name = originalName;
+                                if (!product.price || product.price === 0) {
+                                    product.price = 15000; // Default price
+                                }
+                            }
+                        }
+                        
+                        // Ensure quantity is a number
+                        product.quantity = parseInt(product.quantity) || 1;
+                        product.price = parseInt(product.price) || 15000;
+                    });
+                }
+                
+                // FIX 4: Recalculate total based on products
+                if (order.products && Array.isArray(order.products) && order.products.length > 0) {
+                    const calculatedTotal = order.products.reduce((sum, p) => {
+                        return sum + (p.price * p.quantity);
+                    }, 0);
+                    
+                    // If current total doesn't match calculated total, update it
+                    if (parseInt(order.total) !== calculatedTotal) {
+                        order.total = calculatedTotal;
+                        hasIssue = true;
+                    }
+                }
+                
+                // FIX 5: Ensure status exists
+                if (!order.status) {
+                    order.status = 'pending';
+                    hasIssue = true;
+                }
+                
+                // FIX 6: Ensure timestamp exists
+                if (!order.timestamp) {
+                    order.timestamp = Date.now();
+                    order.date = new Date().toLocaleString('id-ID');
+                    hasIssue = true;
+                }
+                
+                // FIX 7: Generate ID if missing
+                if (!order.id) {
+                    order.id = 'PANG-' + Date.now().toString().slice(-6) + '-' + Math.random().toString(36).substr(2, 3).toUpperCase();
+                    hasIssue = true;
+                }
+                
+                if (hasIssue) issuesFixed++;
+            });
+            
+            if (issuesFixed > 0) {
+                // Save fixed orders back to localStorage
+                localStorage.setItem('pangsit_orders', JSON.stringify(orders));
+                console.log(`Fixed ${issuesFixed} order data issues`);
+            }
+        }
+        
+        // Check for data issues and display warnings
+        function checkDataIssues() {
+            const warningsContainer = document.getElementById('dataWarnings');
+            warningsContainer.innerHTML = '';
+            
+            let warningCount = 0;
+            
+            orders.forEach((order, index) => {
+                let warnings = [];
+                
+                // Check for missing customer info
+                if (!order.customer?.name || order.customer.name === 'Pelanggan') {
+                    warnings.push('Nama pemesan tidak lengkap');
+                }
+                
+                if (!order.customer?.phone) {
+                    warnings.push('Nomor telepon tidak ada');
+                }
+                
+                // Check for product issues
+                if (!order.products || order.products.length === 0) {
+                    warnings.push('Daftar makanan kosong');
+                } else {
+                    order.products.forEach(product => {
+                        if (!product.name) {
+                            warnings.push('Nama produk tidak jelas');
+                        }
+                        if (!product.price || product.price === 0) {
+                            warnings.push('Harga produk nol atau tidak ada');
+                        }
+                    });
+                }
+                
+                // Check total mismatch
+                if (order.products && order.products.length > 0) {
+                    const calculatedTotal = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+                    if (Math.abs(parseInt(order.total) - calculatedTotal) > 100) {
+                        warnings.push('Total harga tidak sesuai');
+                    }
+                }
+                
+                if (warnings.length > 0) {
+                    warningCount++;
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'data-warning';
+                    warningDiv.innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="color: #ff6b35;"></i>
+                        <div>
+                            <strong>Order ${order.id || '#'+index}:</strong> ${warnings.join(', ')}
+                            <button onclick="fixSingleOrder('${order.id || index}')" style="
+                                margin-left: 10px;
+                                background: var(--primary);
+                                color: white;
+                                border: none;
+                                padding: 2px 8px;
+                                border-radius: 4px;
+                                font-size: 12px;
+                                cursor: pointer;
+                            ">Perbaiki</button>
+                        </div>
+                    `;
+                    warningsContainer.appendChild(warningDiv);
+                }
+            });
+            
+            if (warningCount > 0) {
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'data-warning';
+                summaryDiv.innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="color: #ffc107;"></i>
+                    <div><strong>Ditemukan ${warningCount} order dengan masalah data.</strong> Klik "Fix Data Issues" untuk memperbaiki semua.</div>
+                `;
+                warningsContainer.insertBefore(summaryDiv, warningsContainer.firstChild);
+            }
+        }
+        
+        // Fix a single order
+        function fixSingleOrder(orderId) {
+            const orderIndex = orders.findIndex(o => o.id === orderId || orders.indexOf(o) === parseInt(orderId));
+            
+            if (orderIndex === -1) return;
+            
+            const order = orders[orderIndex];
+            
+            // Fix customer info
+            if (!order.customer) order.customer = {};
+            order.customer.name = order.customer.name || order.nama || order.name || 'Pelanggan';
+            order.customer.phone = order.customer.phone || order.telepon || order.phone || order.hp || '';
+            order.customer.address = order.customer.address || order.alamat || order.address || '';
+            
+            // Fix products
+            if (order.products && Array.isArray(order.products)) {
+                order.products.forEach(product => {
+                    if (!product.name) product.name = 'Produk';
+                    if (!product.price || product.price === 0) product.price = 15000;
+                    product.quantity = parseInt(product.quantity) || 1;
+                });
+                
+                // Recalculate total
+                order.total = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+            }
+            
+            // Save back
+            localStorage.setItem('pangsit_orders', JSON.stringify(orders));
+            loadOrders();
+            
+            alert(`Order ${orderId} telah diperbaiki`);
+        }
+        
+        // Fix all data issues
+        function fixDataMismatch() {
+            if (orders.length === 0) return;
+            
+            if (confirm('Perbaiki SEMUA masalah data pada semua order?')) {
+                orders.forEach(order => {
+                    // Standardize structure
+                    if (!order.customer) {
+                        order.customer = {
+                            name: order.nama || order.name || 'Pelanggan',
+                            phone: order.telepon || order.phone || order.hp || '',
+                            address: order.alamat || order.address || ''
+                        };
+                    }
+                    
+                    // Fix products array
+                    if (!order.products || !Array.isArray(order.products)) {
+                        order.products = [];
+                    }
+                    
+                    // Fix product details
+                    if (order.products && Array.isArray(order.products)) {
+                        order.products.forEach(product => {
+                            // Find product in price list
+                            const productName = product.name || product.nama || product.productName || '';
+                            if (productName) {
+                                const matchedProduct = Object.keys(productPrices).find(p => 
+                                    productName.toLowerCase().includes(p.toLowerCase())
+                                );
+                                
+                                if (matchedProduct) {
+                                    product.name = matchedProduct;
+                                    product.price = productPrices[matchedProduct];
+                                } else {
+                                    product.name = productName;
+                                    product.price = product.price || 15000;
+                                }
+                            }
+                            
+                            product.quantity = parseInt(product.quantity) || 1;
+                            product.price = parseInt(product.price) || 15000;
+                        });
+                        
+                        // Recalculate total
+                        order.total = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+                    }
+                    
+                    // Ensure status
+                    if (!order.status) order.status = 'pending';
+                    
+                    // Ensure ID
+                    if (!order.id) {
+                        order.id = 'PANG-' + Date.now().toString().slice(-6) + '-' + Math.random().toString(36).substr(2, 3).toUpperCase();
+                    }
+                });
+                
+                // Save fixed data
+                localStorage.setItem('pangsit_orders', JSON.stringify(orders));
+                loadOrders();
+                
+                alert(`Semua ${orders.length} order telah diperbaiki!`);
             }
         }
         
@@ -702,7 +1009,7 @@
                 const statusText = isNew ? 'BARU' : 
                                   isProses ? 'DIPROSES' : 'SELESAI';
                 
-                // FIXED: Ensure total is calculated correctly
+                // Calculate total from products (ensure accuracy)
                 let totalAmount = 0;
                 if (order.products && Array.isArray(order.products)) {
                     totalAmount = order.products.reduce((sum, p) => {
@@ -719,27 +1026,24 @@
                     new Date(order.timestamp).toLocaleString('id-ID') : 
                     order.date || 'Unknown date';
                 
-                // FIXED: Get customer name properly
-                const customerName = order.customer?.name || 
-                                   order.nama || 
-                                   order.name || 
-                                   'Pelanggan';
+                // Get customer info from standardized structure
+                const customerName = order.customer?.name || 'Pelanggan';
+                const customerPhone = order.customer?.phone || '';
+                const customerAddress = order.customer?.address || '';
                 
-                // FIXED: Get phone properly
-                const customerPhone = order.customer?.phone || 
-                                    order.phone || 
-                                    order.hp || 
-                                    order.telepon || 
-                                    '';
-                
-                // FIXED: Get address properly
-                const customerAddress = order.customer?.address || 
-                                      order.address || 
-                                      order.alamat || 
-                                      '';
+                // Check if this order has data issues
+                const hasDataIssue = !order.customer?.name || order.customer.name === 'Pelanggan' || 
+                                    !order.products || order.products.length === 0 ||
+                                    (order.products && order.products.some(p => !p.name || !p.price));
                 
                 return `
                     <div class="${cardClass}" data-id="${order.id}">
+                        ${hasDataIssue ? `
+                            <div class="data-warning" style="margin-bottom: 10px; padding: 8px; font-size: 12px;">
+                                <i class="fas fa-exclamation-triangle"></i> Data perlu diverifikasi
+                            </div>
+                        ` : ''}
+                        
                         ${bulkSelectMode ? `
                             <div style="margin-bottom: 10px;">
                                 <input type="checkbox" class="order-checkbox" 
@@ -769,9 +1073,9 @@
                                     <i class="fas fa-map-marker-alt"></i> ${customerAddress}
                                 </div>
                             ` : ''}
-                            ${order.note ? `
+                            ${order.note || order.catatan ? `
                                 <div style="color: #666; font-size: 14px; margin-top: 5px; padding: 5px; background: #fff3cd; border-radius: 5px;">
-                                    <i class="fas fa-sticky-note"></i> Catatan: ${order.note}
+                                    <i class="fas fa-sticky-note"></i> Catatan: ${order.note || order.catatan}
                                 </div>
                             ` : ''}
                         </div>
@@ -780,7 +1084,7 @@
                             <div class="items-list">
                                 <div style="font-weight: bold; margin-bottom: 10px;">Items:</div>
                                 ${order.products.map(p => {
-                                    const itemName = p.name || p.nama || 'Produk';
+                                    const itemName = p.name || 'Produk';
                                     const quantity = parseInt(p.quantity) || 1;
                                     const price = parseInt(p.price) || 0;
                                     const subtotal = quantity * price;
@@ -789,7 +1093,7 @@
                                         <div class="item-row">
                                             <div class="item-name">${itemName}</div>
                                             <div class="item-qty">x${quantity}</div>
-                                            <div class="item-price">Rp ${subtotal.toLocaleString()}</div>
+                                            <div class="item-price">Rp ${price.toLocaleString()} × ${quantity} = Rp ${subtotal.toLocaleString()}</div>
                                         </div>
                                     `;
                                 }).join('')}
@@ -1153,13 +1457,13 @@
                 {
                     id: 'PANG-' + Date.now().toString().slice(-6),
                     customer: {
-                        name: 'Andi Pratama',
+                        name: 'Budi Santoso',
                         phone: '081234567890',
                         address: 'Jl. Merdeka No. 123, Jakarta'
                     },
                     products: [
                         { name: 'Pangsit Pedas', quantity: 2, price: 20000 },
-                        { name: 'Pangsit Ayam', quantity: 1, price: 15000 },
+                        { name: 'Pangsit Ayam', quantity: 1, price: 25000 },
                         { name: 'Es Teh', quantity: 3, price: 5000 }
                     ],
                     total: 70000,
@@ -1176,45 +1480,30 @@
                         address: 'Jl. Sudirman No. 45, Bandung'
                     },
                     products: [
-                        { name: 'Pangsit Udang', quantity: 5, price: 25000 },
+                        { name: 'Pangsit Udang', quantity: 5, price: 30000 },
                         { name: 'Pangsit Sayur', quantity: 3, price: 18000 },
                         { name: 'Air Mineral', quantity: 2, price: 3000 }
                     ],
-                    total: 182000,
+                    total: 216000,
                     status: 'processing',
                     timestamp: Date.now() - 3600000,
                     date: new Date(Date.now() - 3600000).toLocaleString('id-ID')
                 },
                 {
                     id: 'PANG-' + (Date.now() + 2).toString().slice(-6),
-                    nama: 'Dewi Susanti',
-                    telepon: '082112345678',
-                    alamat: 'Jl. Gatot Subroto No. 88, Surabaya',
+                    customer: {
+                        name: 'Ahmad Fauzi',
+                        phone: '082112345678',
+                        address: 'Jl. Gatot Subroto No. 88, Surabaya'
+                    },
                     products: [
-                        { nama: 'Pangsit Goreng', quantity: 10, price: 12000 },
-                        { name: 'Pangsit Kuah', quantity: 5, price: 15000 }
+                        { name: 'Pangsit Goreng', quantity: 10, price: 20000 },
+                        { name: 'Pangsit Kuah', quantity: 5, price: 22000 }
                     ],
-                    total: 195000,
+                    total: 310000,
                     status: 'completed',
                     timestamp: Date.now() - 7200000,
                     date: new Date(Date.now() - 7200000).toLocaleString('id-ID')
-                },
-                {
-                    id: 'PANG-' + (Date.now() + 3).toString().slice(-6),
-                    customer: {
-                        name: 'Rina Wijaya',
-                        phone: '085678901234',
-                        address: 'Jl. Diponegoro No. 56, Yogyakarta'
-                    },
-                    products: [
-                        { name: 'Pangsit Keju', quantity: 4, price: 22000 },
-                        { name: 'Pangsit Jamur', quantity: 2, price: 17000 },
-                        { name: 'Teh Manis', quantity: 4, price: 4000 }
-                    ],
-                    total: 146000,
-                    status: 'pending',
-                    timestamp: Date.now() - 1800000,
-                    date: new Date(Date.now() - 1800000).toLocaleString('id-ID')
                 }
             ];
             
@@ -1242,7 +1531,8 @@
             }
         }
         
-        console.log('✅ Admin Dashboard ready for GitHub Pages!');
+        console.log('✅ Admin Dashboard FIXED VERSION ready!');
+        console.log('✅ Data consistency issues have been addressed.');
     </script>
     
 </body>
