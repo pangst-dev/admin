@@ -1,164 +1,76 @@
-📋 PANGS!T - Admin Panel Documentation
-🔗 Admin Panel URL
-Live Admin: https://[username].github.io/pangsit-toko-online/admin-live.html
+📋 PANGS!T ADMIN PANEL
+🔗 LINK ADMIN
+URL: https://[username].github.io/pangsit-toko-online/admin-live.html
 
-📱 Admin Panel Features
-👁️ Real-time Monitoring
-Live Order Tracking - Orders appear automatically
+🚀 FITUR UTAMA
+✅ REAL-TIME - Order muncul otomatis
+✅ NOTIFIKASI SUARA - "Ding!" untuk order baru
+✅ AUTO-REFRESH - Setiap 5 detik
+✅ UPDATE STATUS - Baru → Diproses → Selesai
+✅ WHATSAPP LANGSUNG - Chat customer 1 klik
+✅ TELEPON CUSTOMER - Call langsung dari panel
+✅ EXPORT DATA - Download semua order ke JSON
+✅ MOBILE READY - Bisa diakses dari HP
 
-Sound Alerts - "Ding!" sound for new orders
+📱 CARA PAKAI
+1. BUKA ADMIN PANEL
+text
+https://[username].github.io/pangsit-toko-online/admin-live.html
+2. MONITOR ORDER
+Biarkan tab terbuka
 
-Visual Notifications - New orders blink with animation
+Dengarkan suara "ding"
 
-Auto-refresh - Every 5 seconds, no manual refresh needed
+Order baru muncul otomatis
 
-🛠️ Order Management
-Status Updates - New → Processing → Completed (1-click)
+Auto-refresh setiap 5 detik
 
-Order Filtering - Filter by order status
+3. UPDATE STATUS
+Klik tombol "UPDATE" untuk ganti status:
 
-Quick Search - Search by order ID or customer name
+text
+BARU → DIPROSES → SELESAI
+4. HUBUNGI CUSTOMER
+WhatsApp: Klik tombol WA hijau
 
-Bulk Actions - Update multiple orders at once
+Telepon: Klik tombol telepon biru
 
-📞 Customer Communication
-Direct WhatsApp - Chat customers directly from panel
+5. EXPORT DATA
+Klik "EXPORT DATA" untuk backup
 
-One-tap Calling - Call customers with 1 click
-
-Auto Messages - Pre-written message templates
-
-Status Notifications - Send updates to customers via WhatsApp
-
-📈 Reporting & Export
-Export Data - Download all orders as JSON file
-
-Print Invoices - Print order receipts for customers
-
-Daily Statistics - View order statistics
-
-Revenue Tracking - Monitor real-time income
-
-🛠️ Admin Technology
-Vanilla JavaScript - Pure JavaScript, no frameworks
-
-LocalStorage - Browser-based data storage
-
-GitHub Pages - Free HTTPS hosting
-
-Web Audio API - Sound notifications
-
-Font Awesome 6 - Modern icons
-
-Responsive Design - Works on mobile & desktop
-
-📁 Admin File Structure
+📁 FILE YANG DIBUTUHKAN
 text
 pangsit-toko-online/
-├── 📄 admin-live.html          # Main admin panel
-├── 📄 index.html              # Customer store
-├── 📁 foto/                   # Product images
-│   ├── logo projek.png
-│   ├── fire silk wonton.jpg
-│   ├── crispy melt deluxe.jpg
-│   ├── Golden chili crunch.jpg
-│   ├── bils bila ayam pangsit.jpg
-│   ├── pangsit kuah mercon.jpg
-│   └── pangsit isi tahu.jpg
-└── 📄 README.md              # Documentation
-🚀 Quick Start Guide
-1. Open Admin Panel
-bash
-# Open in browser:
-https://[username].github.io/pangsit-toko-online/admin-live.html
-2. Initial Setup
-Allow notifications when browser asks
+├── admin-live.html    # Admin panel
+├── index.html         # Toko online
+└── foto/              # Gambar produk
+    ├── logo projek.png
+    ├── fire silk wonton.jpg
+    ├── crispy melt deluxe.jpg
+    └── ...
+🛠️ TROUBLESHOOTING
+Order Tidak Muncul?
+Refresh halaman
 
-Turn on volume for sound alerts
+Cek koneksi internet
 
-Bookmark page for quick access
+Pastikan customer sudah checkout
 
-Add to home screen (mobile)
+Tidak Ada Suara?
+Klik tombol sound (kiri bawah)
 
-3. Monitor Orders
-Keep tab open during business hours
+Nyalakan volume HP/PC
 
-Listen for "ding" sound for new orders
+Izinkan audio di browser
 
-Watch for blinking new orders
+Data Hilang?
+Jangan clear cache browser
 
-Auto-refresh every 5 seconds
+Export data secara berkala
 
-4. Manage Orders
-javascript
-// Order status flow:
-NEW → PROCESSING → COMPLETED
+Gunakan browser yang sama
 
-// Actions:
-1. Click "UPDATE" button to change status
-2. Click "WA" button to WhatsApp customer
-3. Click "CALL" button to phone customer
-📱 Mobile Optimization
-Add to Home Screen:
-Open admin panel in mobile browser
-
-Tap menu (3 dots) → "Add to Home Screen"
-
-Name it "PANGSIT Admin"
-
-Icon appears like a real app
-
-Mobile Tips:
-✅ Volume ON - For sound notifications
-
-✅ Don't Close Tab - Keep browser running
-
-✅ Lock Screen - Still receives notifications
-
-✅ Battery Saver - Turn off if needed
-
-🚨 Troubleshooting
-Orders Not Appearing?
-✅ Fix:
-
-Refresh page (pull down/swipe)
-
-Check internet connection
-
-Make sure customer checked out
-
-Check browser "Network" tab
-
-No Sound Notifications?
-✅ Fix:
-
-Click sound button (bottom left)
-
-Check device volume
-
-Allow audio in browser
-
-Refresh page
-
-Data Missing?
-✅ Fix:
-
-Data stored in browser locally
-
-Don't clear browser cache
-
-Export data regularly
-
-Use same browser
-
-📞 Support
+📞 BANTUAN
 Email: sitirusmi54@gmail.com
 
-WhatsApp: +62 831-9524-3139
-
-GitHub: Create issue in repository
-
-REPLACE [username] WITH YOUR GITHUB USERNAME!
-
-Example:
-https://sitirusmi.github.io/pangsit-toko-online/admin-live.html
+WhatsApp: 0831-9524-3139
