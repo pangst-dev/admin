@@ -6,7 +6,6 @@
     <title>Admin PANGS!T - Live Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS dari sebelumnya, tetap sama */
         :root {
             --primary: #ff6b35;
             --primary-dark: #e55a2b;
@@ -15,6 +14,8 @@
             --dark: #212529;
             --gray: #6c757d;
             --success: #25D366;
+            --warning: #ffc107;
+            --danger: #dc3545;
         }
         
         * {
@@ -153,6 +154,8 @@
             padding: 25px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             margin-bottom: 30px;
+            max-height: 600px;
+            overflow-y: auto;
         }
         
         .orders-list {
@@ -307,6 +310,48 @@
             color: white;
         }
         
+        /* Items List */
+        .items-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            flex: 3;
+            font-weight: 500;
+        }
+        
+        .item-qty {
+            flex: 1;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .item-price {
+            flex: 2;
+            text-align: right;
+            font-weight: 600;
+        }
+        
         /* Empty state */
         .empty-state {
             text-align: center;
@@ -354,6 +399,47 @@
             cursor: pointer;
             z-index: 100;
         }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .page-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Bulk Actions */
+        .bulk-actions {
+            display: none;
+            background: var(--warning);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .bulk-actions.show {
+            display: flex;
+        }
+        
+        .order-checkbox {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -380,6 +466,32 @@
                 <div class="stat-number" id="newOrders">0</div>
                 <div class="stat-label">New Orders</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayOrders">0</div>
+                <div class="stat-label">Today's Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRevenue">0</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+        
+        <!-- Bulk Actions -->
+        <div class="bulk-actions" id="bulkActions">
+            <div>
+                <strong id="selectedCount">0</strong> orders selected
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="updateBulkStatus('processing')">
+                    <i class="fas fa-play"></i> Process Selected
+                </button>
+                <button class="btn" onclick="updateBulkStatus('completed')">
+                    <i class="fas fa-check"></i> Complete Selected
+                </button>
+                <button class="btn btn-secondary" onclick="clearSelection()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
         </div>
         
         <!-- Controls -->
@@ -389,6 +501,9 @@
             </button>
             <button class="btn btn-success" onclick="exportOrders()">
                 <i class="fas fa-download"></i> Export Data
+            </button>
+            <button class="btn" onclick="toggleBulkSelect()">
+                <i class="fas fa-check-square"></i> Bulk Select
             </button>
             <button class="btn btn-secondary" onclick="clearOrders()">
                 <i class="fas fa-trash"></i> Clear All
@@ -402,9 +517,10 @@
         </div>
         
         <!-- Orders Container -->
-        <div class="orders-container">
+        <div class="orders-container" id="ordersContainer">
             <h2 style="color: var(--secondary); margin-bottom: 20px;">
                 <i class="fas fa-bolt"></i> Live Orders
+                <span id="ordersCount" style="font-size: 14px; color: var(--gray);">(0 orders)</span>
             </h2>
             
             <div class="orders-list" id="ordersList">
@@ -413,6 +529,11 @@
                     <h3>No orders yet</h3>
                     <p>Waiting for customers to place orders</p>
                 </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Pagination akan di-generate oleh JavaScript -->
             </div>
         </div>
         
@@ -452,6 +573,10 @@
         let orders = [];
         let soundEnabled = true;
         let lastUpdate = null;
+        let bulkSelectMode = false;
+        let selectedOrders = new Set();
+        let currentPage = 1;
+        const ordersPerPage = 10;
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -474,6 +599,9 @@
                 playNotification();
                 loadOrders();
             });
+            
+            // Simulate receiving orders from main website
+            simulateIncomingOrders();
         });
         
         // Load orders from localStorage
@@ -515,13 +643,31 @@
             const totalOrders = orders.length;
             const newOrders = orders.filter(o => o.status === 'pending').length;
             
+            // Count today's orders
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(o => {
+                const orderDate = new Date(o.timestamp).toDateString();
+                return orderDate === today;
+            }).length;
+            
+            // Calculate total revenue
+            const totalRevenue = orders.reduce((total, order) => {
+                return total + (parseInt(order.total) || 0);
+            }, 0);
+            
             document.getElementById('totalOrders').textContent = totalOrders;
             document.getElementById('newOrders').textContent = newOrders;
+            document.getElementById('todayOrders').textContent = todayOrders;
+            document.getElementById('totalRevenue').textContent = 'Rp ' + totalRevenue.toLocaleString();
+            
+            // Update orders count
+            document.getElementById('ordersCount').textContent = `(${totalOrders} orders)`;
         }
         
-        // Render orders
+        // Render orders with pagination
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
+            const pagination = document.getElementById('pagination');
             
             if (orders.length === 0) {
                 ordersList.innerHTML = `
@@ -531,10 +677,18 @@
                         <p>Waiting for customers to place orders</p>
                     </div>
                 `;
+                pagination.innerHTML = '';
                 return;
             }
             
-            ordersList.innerHTML = orders.map(order => {
+            // Calculate pagination
+            const totalPages = Math.ceil(orders.length / ordersPerPage);
+            const startIndex = (currentPage - 1) * ordersPerPage;
+            const endIndex = Math.min(startIndex + ordersPerPage, orders.length);
+            const currentOrders = orders.slice(startIndex, endIndex);
+            
+            // Render orders for current page
+            ordersList.innerHTML = currentOrders.map(order => {
                 const isNew = order.status === 'pending';
                 const isProses = order.status === 'processing';
                 const isSelesai = order.status === 'completed';
@@ -549,50 +703,102 @@
                 const statusText = isNew ? 'BARU' : 
                                   isProses ? 'DIPROSES' : 'SELESAI';
                 
-                const totalAmount = order.total || 
-                    order.products?.reduce((sum, p) => sum + (p.price * p.quantity), 0) || 0;
+                // FIXED: Ensure total is calculated correctly
+                let totalAmount = 0;
+                if (order.products && Array.isArray(order.products)) {
+                    totalAmount = order.products.reduce((sum, p) => {
+                        const price = parseInt(p.price) || 0;
+                        const quantity = parseInt(p.quantity) || 1;
+                        return sum + (price * quantity);
+                    }, 0);
+                } else if (order.total) {
+                    totalAmount = parseInt(order.total) || 0;
+                }
+                
+                // Format date properly
+                const orderDate = order.timestamp ? 
+                    new Date(order.timestamp).toLocaleString('id-ID') : 
+                    order.date || 'Unknown date';
+                
+                // FIXED: Get customer name properly
+                const customerName = order.customer?.name || 
+                                   order.nama || 
+                                   order.name || 
+                                   'Pelanggan';
+                
+                // FIXED: Get phone properly
+                const customerPhone = order.customer?.phone || 
+                                    order.phone || 
+                                    order.hp || 
+                                    order.telepon || 
+                                    '';
+                
+                // FIXED: Get address properly
+                const customerAddress = order.customer?.address || 
+                                      order.address || 
+                                      order.alamat || 
+                                      '';
                 
                 return `
                     <div class="${cardClass}" data-id="${order.id}">
+                        ${bulkSelectMode ? `
+                            <div style="margin-bottom: 10px;">
+                                <input type="checkbox" class="order-checkbox" 
+                                       data-id="${order.id}" 
+                                       onchange="toggleOrderSelection('${order.id}')"
+                                       ${selectedOrders.has(order.id) ? 'checked' : ''}>
+                                <label>Select this order</label>
+                            </div>
+                        ` : ''}
+                        
                         <div class="order-header">
-                            <div class="order-id">${order.id}</div>
-                            <div class="order-time">${order.date || new Date(order.timestamp).toLocaleString('id-ID')}</div>
+                            <div class="order-id">${order.id || 'N/A'}</div>
+                            <div class="order-time">${orderDate}</div>
                         </div>
                         
                         <div class="customer-info">
                             <div class="customer-name">
-                                <i class="fas fa-user"></i> ${order.customer?.name || 'No name'}
+                                <i class="fas fa-user"></i> ${customerName}
                             </div>
-                            <div class="customer-phone">
-                                <i class="fas fa-phone"></i> ${order.customer?.phone || 'No phone'}
-                            </div>
-                            ${order.customer?.address ? `
+                            ${customerPhone ? `
+                                <div class="customer-phone">
+                                    <i class="fas fa-phone"></i> ${customerPhone}
+                                </div>
+                            ` : ''}
+                            ${customerAddress ? `
                                 <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                                    <i class="fas fa-map-marker-alt"></i> ${order.customer.address}
+                                    <i class="fas fa-map-marker-alt"></i> ${customerAddress}
+                                </div>
+                            ` : ''}
+                            ${order.note ? `
+                                <div style="color: #666; font-size: 14px; margin-top: 5px; padding: 5px; background: #fff3cd; border-radius: 5px;">
+                                    <i class="fas fa-sticky-note"></i> Catatan: ${order.note}
                                 </div>
                             ` : ''}
                         </div>
                         
-                        ${order.products ? `
-                            <div style="
-                                background: #f8f9fa;
-                                padding: 10px;
-                                border-radius: 8px;
-                                margin: 10px 0;
-                                font-size: 14px;
-                            ">
-                                <strong>Items:</strong>
-                                ${order.products.map(p => `
-                                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                                        <span>${p.name} x${p.quantity}</span>
-                                        <span>Rp ${(p.price * p.quantity).toLocaleString()}</span>
-                                    </div>
-                                `).join('')}
+                        ${order.products && order.products.length > 0 ? `
+                            <div class="items-list">
+                                <div style="font-weight: bold; margin-bottom: 10px;">Items:</div>
+                                ${order.products.map(p => {
+                                    const itemName = p.name || p.nama || 'Produk';
+                                    const quantity = parseInt(p.quantity) || 1;
+                                    const price = parseInt(p.price) || 0;
+                                    const subtotal = quantity * price;
+                                    
+                                    return `
+                                        <div class="item-row">
+                                            <div class="item-name">${itemName}</div>
+                                            <div class="item-qty">x${quantity}</div>
+                                            <div class="item-price">Rp ${subtotal.toLocaleString()}</div>
+                                        </div>
+                                    `;
+                                }).join('')}
                             </div>
                         ` : ''}
                         
                         <div class="order-total">
-                            Rp ${parseInt(totalAmount).toLocaleString()}
+                            Total: Rp ${totalAmount.toLocaleString()}
                         </div>
                         
                         <div class="status-badge ${statusClass}">
@@ -600,12 +806,21 @@
                         </div>
                         
                         <div class="actions">
-                            <button class="action-btn btn-wa" onclick="whatsappCustomer('${order.customer?.phone || ''}', '${order.id}')">
-                                <i class="fab fa-whatsapp"></i> WA
-                            </button>
-                            <button class="action-btn btn-call" onclick="callCustomer('${order.customer?.phone || ''}')">
-                                <i class="fas fa-phone"></i> Call
-                            </button>
+                            ${customerPhone ? `
+                                <button class="action-btn btn-wa" onclick="whatsappCustomer('${customerPhone}', '${order.id || ''}')">
+                                    <i class="fab fa-whatsapp"></i> WA
+                                </button>
+                                <button class="action-btn btn-call" onclick="callCustomer('${customerPhone}')">
+                                    <i class="fas fa-phone"></i> Call
+                                </button>
+                            ` : `
+                                <button class="action-btn btn-wa" disabled>
+                                    <i class="fab fa-whatsapp"></i> WA
+                                </button>
+                                <button class="action-btn btn-call" disabled>
+                                    <i class="fas fa-phone"></i> Call
+                                </button>
+                            `}
                             <button class="action-btn btn-update" onclick="updateStatus('${order.id}')">
                                 <i class="fas fa-check"></i> Update
                             </button>
@@ -613,6 +828,57 @@
                     </div>
                 `;
             }).join('');
+            
+            // Render pagination
+            if (totalPages > 1) {
+                let paginationHTML = '';
+                
+                // Previous button
+                if (currentPage > 1) {
+                    paginationHTML += `
+                        <button class="page-btn" onclick="changePage(${currentPage - 1})">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    `;
+                }
+                
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === currentPage) {
+                        paginationHTML += `
+                            <button class="page-btn active">${i}</button>
+                        `;
+                    } else if (i === 1 || i === totalPages || 
+                              (i >= currentPage - 1 && i <= currentPage + 1)) {
+                        paginationHTML += `
+                            <button class="page-btn" onclick="changePage(${i})">${i}</button>
+                        `;
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                        paginationHTML += `<span style="padding: 8px 5px;">...</span>`;
+                    }
+                }
+                
+                // Next button
+                if (currentPage < totalPages) {
+                    paginationHTML += `
+                        <button class="page-btn" onclick="changePage(${currentPage + 1})">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    `;
+                }
+                
+                pagination.innerHTML = paginationHTML;
+            } else {
+                pagination.innerHTML = '';
+            }
+        }
+        
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            renderOrders();
+            // Scroll to top of orders container
+            document.getElementById('ordersContainer').scrollTop = 0;
         }
         
         // Check for new orders
@@ -704,8 +970,15 @@
                 return;
             }
             
+            // Clean phone number
+            const cleanPhone = phone.replace(/\D/g, '');
+            if (cleanPhone.length < 10) {
+                alert('Nomor telepon tidak valid');
+                return;
+            }
+            
             const message = `Halo, ini dari PANGS!T.\n\nPesanan ${orderId} sedang kami proses.\nTerima kasih!`;
-            const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
         
@@ -721,7 +994,10 @@
         // Update order status
         function updateStatus(orderId) {
             const orderIndex = orders.findIndex(o => o.id === orderId);
-            if (orderIndex === -1) return;
+            if (orderIndex === -1) {
+                alert('Order tidak ditemukan');
+                return;
+            }
             
             // Cycle through statuses
             const statuses = ['pending', 'processing', 'completed'];
@@ -732,6 +1008,7 @@
             
             // Update order
             orders[orderIndex].status = nextStatus;
+            orders[orderIndex].updatedAt = Date.now();
             
             // Save to localStorage
             localStorage.setItem('pangsit_orders', JSON.stringify(orders));
@@ -741,7 +1018,9 @@
             updateStats();
             
             // Show confirmation
-            alert(`Status order ${orderId} diubah menjadi: ${nextStatus.toUpperCase()}`);
+            const statusText = nextStatus === 'pending' ? 'BARU' :
+                              nextStatus === 'processing' ? 'DIPROSES' : 'SELESAI';
+            alert(`Status order ${orderId} diubah menjadi: ${statusText}`);
         }
         
         // Export orders
@@ -767,6 +1046,7 @@
             if (confirm('Hapus SEMUA data order? Tindakan ini tidak bisa dibatalkan!')) {
                 localStorage.removeItem('pangsit_orders');
                 orders = [];
+                selectedOrders.clear();
                 updateStats();
                 renderOrders();
                 alert('Semua data order telah dihapus');
@@ -790,40 +1070,181 @@
             }
         }
         
+        // Toggle bulk select mode
+        function toggleBulkSelect() {
+            bulkSelectMode = !bulkSelectMode;
+            selectedOrders.clear();
+            document.getElementById('bulkActions').classList.remove('show');
+            document.getElementById('selectedCount').textContent = '0';
+            renderOrders();
+        }
+        
+        // Toggle order selection
+        function toggleOrderSelection(orderId) {
+            if (selectedOrders.has(orderId)) {
+                selectedOrders.delete(orderId);
+            } else {
+                selectedOrders.add(orderId);
+            }
+            
+            document.getElementById('selectedCount').textContent = selectedOrders.size;
+            
+            // Show/hide bulk actions
+            if (selectedOrders.size > 0) {
+                document.getElementById('bulkActions').classList.add('show');
+            } else {
+                document.getElementById('bulkActions').classList.remove('show');
+            }
+        }
+        
+        // Update status for selected orders
+        function updateBulkStatus(status) {
+            if (selectedOrders.size === 0) {
+                alert('Pilih order terlebih dahulu');
+                return;
+            }
+            
+            const statusText = status === 'pending' ? 'BARU' :
+                              status === 'processing' ? 'DIPROSES' : 'SELESAI';
+            
+            if (!confirm(`Ubah ${selectedOrders.size} order menjadi status "${statusText}"?`)) {
+                return;
+            }
+            
+            selectedOrders.forEach(orderId => {
+                const orderIndex = orders.findIndex(o => o.id === orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = status;
+                    orders[orderIndex].updatedAt = Date.now();
+                }
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('pangsit_orders', JSON.stringify(orders));
+            
+            // Update display
+            renderOrders();
+            updateStats();
+            clearSelection();
+            
+            alert(`${selectedOrders.size} order berhasil diupdate!`);
+        }
+        
+        // Clear selection
+        function clearSelection() {
+            selectedOrders.clear();
+            document.getElementById('bulkActions').classList.remove('show');
+            document.getElementById('selectedCount').textContent = '0';
+            renderOrders();
+        }
+        
+        // Simulate incoming orders (for testing)
+        function simulateIncomingOrders() {
+            // Check for sample orders every 30 seconds
+            setInterval(() => {
+                if (orders.length < 2) {
+                    loadSampleData();
+                }
+            }, 30000);
+        }
+        
         // Load sample data for demo
         function loadSampleData() {
             const sampleOrders = [
                 {
-                    id: 'PANG-123456',
+                    id: 'PANG-' + Date.now().toString().slice(-6),
                     customer: {
-                        name: 'Budi Santoso',
+                        name: 'Andi Pratama',
                         phone: '081234567890',
                         address: 'Jl. Merdeka No. 123, Jakarta'
                     },
                     products: [
                         { name: 'Pangsit Pedas', quantity: 2, price: 20000 },
-                        { name: 'Pangsit Ayam', quantity: 1, price: 15000 }
+                        { name: 'Pangsit Ayam', quantity: 1, price: 15000 },
+                        { name: 'Es Teh', quantity: 3, price: 5000 }
                     ],
-                    total: 55000,
+                    total: 70000,
                     status: 'pending',
                     timestamp: Date.now(),
-                    date: new Date().toLocaleString('id-ID')
+                    date: new Date().toLocaleString('id-ID'),
+                    note: 'Tolong pedas sekali'
+                },
+                {
+                    id: 'PANG-' + (Date.now() + 1).toString().slice(-6),
+                    customer: {
+                        name: 'Siti Rahayu',
+                        phone: '081987654321',
+                        address: 'Jl. Sudirman No. 45, Bandung'
+                    },
+                    products: [
+                        { name: 'Pangsit Udang', quantity: 5, price: 25000 },
+                        { name: 'Pangsit Sayur', quantity: 3, price: 18000 },
+                        { name: 'Air Mineral', quantity: 2, price: 3000 }
+                    ],
+                    total: 182000,
+                    status: 'processing',
+                    timestamp: Date.now() - 3600000,
+                    date: new Date(Date.now() - 3600000).toLocaleString('id-ID')
+                },
+                {
+                    id: 'PANG-' + (Date.now() + 2).toString().slice(-6),
+                    nama: 'Dewi Susanti',
+                    telepon: '082112345678',
+                    alamat: 'Jl. Gatot Subroto No. 88, Surabaya',
+                    products: [
+                        { nama: 'Pangsit Goreng', quantity: 10, price: 12000 },
+                        { name: 'Pangsit Kuah', quantity: 5, price: 15000 }
+                    ],
+                    total: 195000,
+                    status: 'completed',
+                    timestamp: Date.now() - 7200000,
+                    date: new Date(Date.now() - 7200000).toLocaleString('id-ID')
+                },
+                {
+                    id: 'PANG-' + (Date.now() + 3).toString().slice(-6),
+                    customer: {
+                        name: 'Rina Wijaya',
+                        phone: '085678901234',
+                        address: 'Jl. Diponegoro No. 56, Yogyakarta'
+                    },
+                    products: [
+                        { name: 'Pangsit Keju', quantity: 4, price: 22000 },
+                        { name: 'Pangsit Jamur', quantity: 2, price: 17000 },
+                        { name: 'Teh Manis', quantity: 4, price: 4000 }
+                    ],
+                    total: 146000,
+                    status: 'pending',
+                    timestamp: Date.now() - 1800000,
+                    date: new Date(Date.now() - 1800000).toLocaleString('id-ID')
                 }
             ];
             
-            localStorage.setItem('pangsit_orders', JSON.stringify(sampleOrders));
-            orders = sampleOrders;
+            // Merge with existing orders
+            const existingOrders = JSON.parse(localStorage.getItem('pangsit_orders') || '[]');
+            const mergedOrders = [...existingOrders];
+            
+            // Add sample orders if they don't exist
+            sampleOrders.forEach(sample => {
+                const exists = mergedOrders.some(order => order.id === sample.id);
+                if (!exists) {
+                    mergedOrders.push(sample);
+                }
+            });
+            
+            localStorage.setItem('pangsit_orders', JSON.stringify(mergedOrders));
+            orders = mergedOrders;
             updateStats();
             renderOrders();
-        }
-        
-        // Load sample data if no orders
-        if (!localStorage.getItem('pangsit_orders')) {
-            setTimeout(loadSampleData, 1000);
+            
+            // Show notification if new orders were added
+            if (sampleOrders.length > 0) {
+                playNotification();
+                showNotification(sampleOrders.length);
+            }
         }
         
         console.log('✅ Admin Dashboard ready for GitHub Pages!');
     </script>
-    <script src="script-admin.js"></script>
+    
 </body>
 </html>
