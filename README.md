@@ -1,17 +1,17 @@
-# PANGS!T Admin Dashboard
+📋 PANGS!T ADMIN PANEL
+URL: https://username.github.io/pangsit-toko-online/admin-live.html
 
-Dashboard admin real-time untuk monitoring pesanan makanan.
+✅ FITUR
+Order muncul otomatis
 
-## Instalasi
-1. Download index.html
-2. Buka di browser
-3. Selesai
+Suara "ding" untuk order baru
 
-## Fitur
-- Live monitoring
-- Notifikasi suara
-- Update status order
-- WhatsApp integration
+Auto-refresh 5 detik
 
-## Demo
-Akses: [your-username.github.io/repo-name](https://your-username.github.io/repo-name)
+Update status: Baru → Diproses → Selesai
+
+WhatsApp langsung ke customer
+
+Telepon customer 1 klik
+
+📁 FILE
