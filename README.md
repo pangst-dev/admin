@@ -1,17 +1,15 @@
-📋 PANGS!T ADMIN PANEL
-URL: https://username.github.io/pangsit-toko-online/admin-live.html
+# 🥟 PANGS!T - Admin Panel
 
-✅ FITUR
-Order muncul otomatis
+## 🔗 Admin Panel URL
+**URL:** `https://[username].github.io/pangsit-toko-online/admin-live.html`
 
-Suara "ding" untuk order baru
+## 📱 Features
+✅ **Real-time** - Orders appear automatically  
+✅ **Sound notifications** - "Ding!" for new orders  
+✅ **Auto-refresh** - Every 5 seconds  
+✅ **Update status** - New → Processing → Completed  
+✅ **Direct WhatsApp** - Chat customer with 1 click  
+✅ **Call customer** - Phone directly from panel  
+✅ **Export data** - Download all orders as JSON  
 
-Auto-refresh 5 detik
-
-Update status: Baru → Diproses → Selesai
-
-WhatsApp langsung ke customer
-
-Telepon customer 1 klik
-
-📁 FILE
+## 📁 Required Files
