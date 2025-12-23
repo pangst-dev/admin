@@ -1,76 +1,33 @@
-📋 PANGS!T ADMIN PANEL
-🔗 LINK ADMIN
-URL: https://[username].github.io/pangsit-toko-online/admin-live.html
+# 🥟 PANGS!T - Toko Online Pangsit
 
-🚀 FITUR UTAMA
-✅ REAL-TIME - Order muncul otomatis
-✅ NOTIFIKASI SUARA - "Ding!" untuk order baru
-✅ AUTO-REFRESH - Setiap 5 detik
-✅ UPDATE STATUS - Baru → Diproses → Selesai
-✅ WHATSAPP LANGSUNG - Chat customer 1 klik
-✅ TELEPON CUSTOMER - Call langsung dari panel
-✅ EXPORT DATA - Download semua order ke JSON
-✅ MOBILE READY - Bisa diakses dari HP
+Toko online pangsit dengan sistem admin real-time berbasis GitHub Pages.
 
-📱 CARA PAKAI
-1. BUKA ADMIN PANEL
-text
-https://[username].github.io/pangsit-toko-online/admin-live.html
-2. MONITOR ORDER
-Biarkan tab terbuka
+## 🚀 Demo
+- Toko Online: `https://[username].github.io/pangsit-toko-online`
+- Admin Panel: `https://[username].github.io/pangsit-toko-online/admin-live.html`
 
-Dengarkan suara "ding"
+## 📱 Fitur Utama
 
-Order baru muncul otomatis
+### 🛒 Toko Online (index.html)
+- Katalog produk pangsit lengkap
+- Keranjang belanja
+- Checkout dengan berbagai metode pembayaran
+- Simpan order ke sistem lokal
+- Generate QR code untuk admin
 
-Auto-refresh setiap 5 detik
+### 👑 Admin Panel (admin-live.html)
+- Live dashboard real-time
+- Auto-refresh setiap 5 detik
+- Notifikasi suara untuk order baru
+- Update status order (Baru → Proses → Selesai)
+- WhatsApp & Telepon customer langsung
+- Export data order ke JSON
 
-3. UPDATE STATUS
-Klik tombol "UPDATE" untuk ganti status:
+## 🛠️ Teknologi
+- **HTML5, CSS3, JavaScript** murni
+- **LocalStorage** untuk penyimpanan data
+- **GitHub Pages** untuk hosting gratis
+- **QRCode.js** untuk generate QR code
+- **Font Awesome** untuk ikon
 
-text
-BARU → DIPROSES → SELESAI
-4. HUBUNGI CUSTOMER
-WhatsApp: Klik tombol WA hijau
-
-Telepon: Klik tombol telepon biru
-
-5. EXPORT DATA
-Klik "EXPORT DATA" untuk backup
-
-📁 FILE YANG DIBUTUHKAN
-text
-pangsit-toko-online/
-├── admin-live.html    # Admin panel
-├── index.html         # Toko online
-└── foto/              # Gambar produk
-    ├── logo projek.png
-    ├── fire silk wonton.jpg
-    ├── crispy melt deluxe.jpg
-    └── ...
-🛠️ TROUBLESHOOTING
-Order Tidak Muncul?
-Refresh halaman
-
-Cek koneksi internet
-
-Pastikan customer sudah checkout
-
-Tidak Ada Suara?
-Klik tombol sound (kiri bawah)
-
-Nyalakan volume HP/PC
-
-Izinkan audio di browser
-
-Data Hilang?
-Jangan clear cache browser
-
-Export data secara berkala
-
-Gunakan browser yang sama
-
-📞 BANTUAN
-Email: sitirusmi54@gmail.com
-
-WhatsApp: 0831-9524-3139
+## 📁 Struktur File
