@@ -1,26 +1,19 @@
-# 🥟 PANGS!T - Toko Online Pangsit
+📋 PANGS!T Live Admin Dashboard
+Sebuah dashboard admin real-time untuk memantau dan mengelola pesanan dari website PANGS!T. Dibangun menggunakan HTML, CSS, dan JavaScript murni dengan penyimpanan data di localStorage.
 
-Toko online pangsit dengan sistem admin real-time berbasis GitHub Pages.
+🚀 Fitur Utama
+Live Monitoring: Update otomatis setiap 5 detik
 
-## 🚀 Demo
-- Admin Panel: `https://[username].github.io/pangsit-toko-online/admin-live.html`
+Notifikasi Real-time: Bunyi dan visual untuk pesanan baru
 
-## 📱 Fitur Utama
- 
-### 👑 Admin Panel (admin-live.html)
-- Live dashboard real-time
-- Auto-refresh setiap 5 detik
-- Notifikasi suara untuk order baru
-- Update status order (Baru → Proses → Selesai)
-- WhatsApp & Telepon customer langsung
-- Export data order ke JSON
+Multi-status Order: Pending → Processing → Completed
 
-## 🛠️ Teknologi
-- **HTML5, CSS3, JavaScript** murni
-- **LocalStorage** untuk penyimpanan data
-- **GitHub Pages** untuk hosting gratis
-- **QRCode.js** untuk generate QR code
-- **Font Awesome** untuk ikon
+Integrasi WhatsApp: Langsung hubungi customer via WA
 
-## 📁 Struktur File
+Export Data: Download semua data dalam format JSON
 
+Responsive Design: Tampilan optimal di desktop dan mobile
+
+Zero Backend: Semua data disimpan di localStorage browser
+
+📁 Struktur File
