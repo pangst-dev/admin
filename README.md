@@ -1,7 +1,7 @@
 # 🥟 PANGS!T - Admin Panel
 
 ## 🔗 Admin Panel URL
-**URL:** `https://[username].github.io/pangsit-toko-online/admin-live.html`
+**URL:** `https://[username].github.io/pangsit-toko-online/admin-live-pangsit.html`
 
 ## 📱 Features
 ✅ **Real-time** - Orders appear automatically  
