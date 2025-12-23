@@ -1,14 +1,34 @@
 # 🍜 PANGS!T Live Admin Dashboard
 
-**Live Admin Dashboard untuk restoran/cafe dengan integrasi GitHub Pages**
+## 🚀 Cara Install (1 Menit)
+1. Buat repository GitHub: `pangsit-admin`
+2. Upload file:
+   - `index.html`
+   - `order.html` 
+   - `admin.js`
+3. Aktifkan GitHub Pages di Settings → Pages
 
-## 🚀 Demo
-- **Admin:** `https://username.github.io/pangsit-admin/`
-- **Order:** `https://username.github.io/pangsit-admin/order.html`
+## 🔗 Link
+- Admin: `https://username.github.io/pangsit-admin/`
+- Order: `https://username.github.io/pangsit-admin/order.html`
 
-## 🛠️ Quick Setup
+## ⚡ Fitur
+✅ Real-time orders  
+✅ WhatsApp customer  
+✅ No backend needed  
+✅ Mobile friendly  
+✅ Export to JSON  
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/username/pangsit-admin.git
-cd pangsit-admin
+## 📱 Cara Pakai
+1. Customer order via `order.html`
+2. Admin monitor via `index.html`
+3. Update status: Baru → Proses → Selesai
+4. Contact via WA button
+
+## ⚠️ Catatan
+- Data hanya di browser lokal
+- Tidak perlu login/token
+- Cocok untuk usaha kecil
+
+## 📞 Support
+Buka issue di GitHub repository
