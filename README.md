@@ -1,807 +1,208 @@
-// ==================== PANGS!T ADMIN PANEL ====================
-// File: script-admin.js
-// Tanggal: 2025
-// Author: PANGS!T Team
-
-// ==================== KONFIGURASI ====================
-
-// Data awal
-let semuaOrders = [];
-let soundEnabled = true;
-let lastUpdateTime = null;
-let refreshInterval = null;
-
-// Nama toko
-const TOKO_NAMA = "PANGS!T STORE";
-
-// ==================== FUNGSI UTAMA ====================
-
-// Inisialisasi admin panel
-function initAdminPanel() {
-    console.log("🚀 Admin Panel PANGS!T dimulai...");
-    
-    // Setup awal
-    setupEventListeners();
-    loadOrdersFromStorage();
-    startAutoRefresh();
-    setupSoundToggle();
-    
-    // Tambah data contoh jika kosong
-    if (semuaOrders.length === 0) {
-        addSampleOrders();
-    }
-    
-    // Update tampilan
-    updateDashboard();
-    
-    console.log("✅ Admin Panel siap digunakan!");
-}
-
-// Setup event listeners
-function setupEventListeners() {
-    // Refresh button
-    const refreshBtn = document.getElementById('refreshBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadOrdersFromStorage);
-    }
-    
-    // Export button
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportOrdersToJSON);
-    }
-    
-    // Clear button
-    const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearAllOrders);
-    }
-    
-    // Sound toggle
-    const soundToggle = document.getElementById('soundToggle');
-    if (soundToggle) {
-        soundToggle.addEventListener('click', toggleSound);
-    }
-    
-    // File upload
-    const fileInput = document.getElementById('fileInput');
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFileUpload);
-    }
-    
-    // Setup drag & drop
-    setupDragAndDrop();
-}
-
-// ==================== LOAD & SAVE DATA ====================
-
-// Load orders dari localStorage
-function loadOrdersFromStorage() {
-    try {
-        console.log("📥 Memuat data orders...");
-        
-        // Tampilkan loading
-        showLoading(true);
-        
-        // Ambil dari localStorage
-        const ordersData = localStorage.getItem('pangsit_orders');
-        const adminData = localStorage.getItem('pangsit_admin_orders');
-        
-        // Gabungkan data
-        let loadedOrders = [];
-        
-        if (ordersData) {
-            const customerOrders = JSON.parse(ordersData);
-            loadedOrders = [...loadedOrders, ...customerOrders];
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin PANGS!T - Live Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS dari sebelumnya, tetap sama */
+        :root {
+            --primary: #ff6b35;
+            --primary-dark: #e55a2b;
+            --secondary: #2d3047;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #25D366;
         }
         
-        if (adminData) {
-            const adminOrders = JSON.parse(adminData);
-            loadedOrders = [...loadedOrders, ...adminOrders];
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
-        // Filter duplikat berdasarkan ID
-        const uniqueOrders = [];
-        const seenIds = new Set();
-        
-        loadedOrders.forEach(order => {
-            const orderId = order.id || order.order_id;
-            if (!seenIds.has(orderId)) {
-                seenIds.add(orderId);
-                
-                // Standarisasi format order
-                const standardizedOrder = {
-                    id: orderId,
-                    customer: {
-                        name: order.customer?.name || order.nama || "Tidak ada nama",
-                        phone: order.customer?.phone || order.telp || "Tidak ada telp",
-                        address: order.customer?.address || order.alamat || "Tidak ada alamat",
-                        email: order.customer?.email || ""
-                    },
-                    products: order.products || [],
-                    total: order.total || 0,
-                    status: order.status || 'pending',
-                    date: order.date || new Date().toLocaleDateString('id-ID'),
-                    time: order.time || new Date().toLocaleTimeString('id-ID'),
-                    timestamp: order.timestamp || Date.now(),
-                    payment: order.paymentMethod || order.payment || "Unknown",
-                    notes: order.notes || ""
-                };
-                
-                uniqueOrders.push(standardizedOrder);
-            }
-        });
-        
-        // Urutkan berdasarkan waktu (terbaru dulu)
-        uniqueOrders.sort((a, b) => b.timestamp - a.timestamp);
-        
-        semuaOrders = uniqueOrders;
-        
-        // Simpan versi terbaru ke localStorage admin
-        localStorage.setItem('pangsit_admin_orders', JSON.stringify(semuaOrders));
-        
-        // Update tampilan
-        updateDashboard();
-        
-        // Cek order baru
-        checkNewOrders();
-        
-        // Sembunyikan loading
-        showLoading(false);
-        
-        console.log(`✅ ${semuaOrders.length} orders berhasil dimuat`);
-        
-    } catch (error) {
-        console.error("❌ Error loading orders:", error);
-        showLoading(false);
-        alert("Error memuat data orders: " + error.message);
-    }
-}
-
-// Simpan orders ke localStorage
-function saveOrdersToStorage() {
-    try {
-        localStorage.setItem('pangsit_admin_orders', JSON.stringify(semuaOrders));
-        console.log(`💾 ${semuaOrders.length} orders disimpan`);
-    } catch (error) {
-        console.error("Error saving orders:", error);
-    }
-}
-
-// ==================== DASHBOARD UPDATE ====================
-
-// Update seluruh dashboard
-function updateDashboard() {
-    updateOrderStats();
-    renderOrdersList();
-    updateLastUpdateTime();
-}
-
-// Update statistics
-function updateOrderStats() {
-    const totalOrders = semuaOrders.length;
-    const newOrders = semuaOrders.filter(o => o.status === 'pending').length;
-    const processingOrders = semuaOrders.filter(o => o.status === 'processing').length;
-    const completedOrders = semuaOrders.filter(o => o.status === 'completed').length;
-    
-    // Hitung total pendapatan
-    const totalRevenue = semuaOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-    
-    // Update elemen di halaman
-    updateElementText('totalOrders', totalOrders.toString());
-    updateElementText('newOrders', newOrders.toString());
-    updateElementText('processingOrders', processingOrders.toString());
-    updateElementText('completedOrders', completedOrders.toString());
-    updateElementText('totalRevenue', formatRupiah(totalRevenue));
-}
-
-// Render orders list
-function renderOrdersList() {
-    const ordersContainer = document.getElementById('ordersContainer');
-    if (!ordersContainer) return;
-    
-    if (semuaOrders.length === 0) {
-        ordersContainer.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-inbox fa-3x mb-3"></i>
-                <h4>Belum ada orders</h4>
-                <p class="text-muted">Tunggu customer melakukan pemesanan</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Buat HTML untuk setiap order
-    let ordersHTML = '';
-    
-    semuaOrders.forEach(order => {
-        const isNew = order.status === 'pending';
-        const isProcessing = order.status === 'processing';
-        const isCompleted = order.status === 'completed';
-        
-        // Tentukan class CSS
-        let statusClass = 'badge-secondary';
-        let statusText = 'Menunggu';
-        
-        if (isNew) {
-            statusClass = 'badge-warning';
-            statusText = 'BARU';
-        } else if (isProcessing) {
-            statusClass = 'badge-info';
-            statusText = 'DIPROSES';
-        } else if (isCompleted) {
-            statusClass = 'badge-success';
-            statusText = 'SELESAI';
-        }
-        
-        // Format items
-        let itemsHTML = '';
-        if (order.products && order.products.length > 0) {
-            itemsHTML = order.products.map(product => 
-                `<div class="small">${product.name} x${product.quantity}</div>`
-            ).join('');
-        } else {
-            itemsHTML = '<div class="small text-muted">Tidak ada detail items</div>';
-        }
-        
-        // Order card HTML
-        ordersHTML += `
-            <div class="order-card ${isNew ? 'new-order' : ''}" data-id="${order.id}">
-                <div class="order-header">
-                    <div class="order-id">#${order.id}</div>
-                    <div class="order-time">${order.date} ${order.time}</div>
-                </div>
-                
-                <div class="order-customer">
-                    <div class="customer-name">
-                        <i class="fas fa-user mr-2"></i>${order.customer.name}
-                    </div>
-                    <div class="customer-phone">
-                        <i class="fas fa-phone mr-2"></i>${order.customer.phone}
-                    </div>
-                    <div class="customer-address small text-muted">
-                        <i class="fas fa-map-marker-alt mr-2"></i>${order.customer.address}
-                    </div>
-                </div>
-                
-                <div class="order-details">
-                    ${itemsHTML}
-                    <div class="order-total mt-2">
-                        <strong>Total: ${formatRupiah(order.total)}</strong>
-                    </div>
-                </div>
-                
-                <div class="order-status">
-                    <span class="badge ${statusClass}">${statusText}</span>
-                </div>
-                
-                <div class="order-actions">
-                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id}')">
-                        <i class="fas fa-check"></i> Update
-                    </button>
-                    <button class="btn btn-sm btn-primary" onclick="whatsappCustomer('${order.customer.phone}', '${order.id}')">
-                        <i class="fab fa-whatsapp"></i> WA
-                    </button>
-                    <button class="btn btn-sm btn-info" onclick="callCustomer('${order.customer.phone}')">
-                        <i class="fas fa-phone"></i> Call
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteOrder('${order.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-    
-    ordersContainer.innerHTML = ordersHTML;
-}
-
-// Update last update time
-function updateLastUpdateTime() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('id-ID');
-    const dateString = now.toLocaleDateString('id-ID', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
-    updateElementText('lastUpdate', `Terakhir update: ${timeString}`);
-    updateElementText('currentDate', dateString);
-}
-
-// ==================== ORDER MANAGEMENT ====================
-
-// Update status order
-function updateOrderStatus(orderId) {
-    const orderIndex = semuaOrders.findIndex(o => o.id === orderId);
-    if (orderIndex === -1) {
-        alert("Order tidak ditemukan!");
-        return;
-    }
-    
-    const order = semuaOrders[orderIndex];
-    
-    // Tentukan status berikutnya
-    const statusFlow = ['pending', 'processing', 'completed'];
-    const currentIndex = statusFlow.indexOf(order.status);
-    const nextIndex = (currentIndex + 1) % statusFlow.length;
-    const nextStatus = statusFlow[nextIndex];
-    
-    // Update status
-    semuaOrders[orderIndex].status = nextStatus;
-    
-    // Simpan perubahan
-    saveOrdersToStorage();
-    
-    // Update tampilan
-    updateDashboard();
-    
-    // Kirim notifikasi ke customer (opsional)
-    if (nextStatus === 'completed') {
-        const confirmSend = confirm(`Order #${orderId} selesai. Kirim notifikasi ke customer?`);
-        if (confirmSend) {
-            sendCompletionNotification(order);
-        }
-    }
-    
-    // Play sound
-    playNotificationSound();
-    
-    alert(`Status order #${orderId} diubah menjadi: ${getStatusText(nextStatus)}`);
-}
-
-// Delete order
-function deleteOrder(orderId) {
-    if (!confirm(`Hapus order #${orderId}?`)) {
-        return;
-    }
-    
-    const orderIndex = semuaOrders.findIndex(o => o.id === orderId);
-    if (orderIndex === -1) return;
-    
-    // Hapus order
-    semuaOrders.splice(orderIndex, 1);
-    
-    // Simpan perubahan
-    saveOrdersToStorage();
-    
-    // Update tampilan
-    updateDashboard();
-    
-    alert(`Order #${orderId} telah dihapus`);
-}
-
-// ==================== CUSTOMER COMMUNICATION ====================
-
-// WhatsApp customer
-function whatsappCustomer(phoneNumber, orderId) {
-    if (!phoneNumber || phoneNumber === "Tidak ada telp") {
-        alert("Nomor telepon tidak tersedia");
-        return;
-    }
-    
-    // Format nomor (hapus karakter non-digit)
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
-    
-    // Buat pesan
-    const message = `Halo, ini dari ${TOKO_NAMA}.\n\nOrder #${orderId} sedang kami proses.\nTerima kasih telah berbelanja di toko kami!`;
-    
-    // Encode untuk URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Buat URL WhatsApp
-    const whatsappURL = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-    
-    // Buka WhatsApp
-    window.open(whatsappURL, '_blank');
-}
-
-// Call customer
-function callCustomer(phoneNumber) {
-    if (!phoneNumber || phoneNumber === "Tidak ada telp") {
-        alert("Nomor telepon tidak tersedia");
-        return;
-    }
-    
-    // Format nomor untuk telepon
-    const telURL = `tel:${phoneNumber}`;
-    
-    // Buka dialer
-    window.location.href = telURL;
-}
-
-// Kirim notifikasi order selesai
-function sendCompletionNotification(order) {
-    if (!order.customer.phone || order.customer.phone === "Tidak ada telp") {
-        return;
-    }
-    
-    const cleanPhone = order.customer.phone.replace(/\D/g, '');
-    const message = `Halo ${order.customer.name},\n\nOrder #${order.id} sudah SELESAI dan siap diantar.\n\nTotal: ${formatRupiah(order.total)}\n\nTerima kasih,\n${TOKO_NAMA}`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappURL = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-    
-    window.open(whatsappURL, '_blank');
-}
-
-// ==================== DATA EXPORT & IMPORT ====================
-
-// Export orders ke JSON
-function exportOrdersToJSON() {
-    if (semuaOrders.length === 0) {
-        alert("Tidak ada data untuk diexport");
-        return;
-    }
-    
-    try {
-        // Buat data untuk export
-        const exportData = {
-            toko: TOKO_NAMA,
-            exportDate: new Date().toISOString(),
-            totalOrders: semuaOrders.length,
-            orders: semuaOrders
-        };
-        
-        // Convert ke JSON string
-        const jsonString = JSON.stringify(exportData, null, 2);
-        
-        // Buat blob dan download
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `pangsit_orders_${Date.now()}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        alert(`✅ ${semuaOrders.length} orders berhasil diexport`);
-        
-    } catch (error) {
-        console.error("Error exporting orders:", error);
-        alert("Error mengexport data: " + error.message);
-    }
-}
-
-// Import orders dari file
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    if (!file.name.endsWith('.json')) {
-        alert("Hanya file JSON yang didukung");
-        return;
-    }
-    
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        try {
-            const importedData = JSON.parse(e.target.result);
-            
-            if (!importedData.orders || !Array.isArray(importedData.orders)) {
-                alert("Format file tidak valid");
-                return;
-            }
-            
-            // Tambah orders baru
-            const newOrders = importedData.orders;
-            const currentOrderIds = new Set(semuaOrders.map(o => o.id));
-            
-            let addedCount = 0;
-            newOrders.forEach(order => {
-                if (!currentOrderIds.has(order.id)) {
-                    // Standarisasi format
-                    const standardizedOrder = {
-                        id: order.id,
-                        customer: {
-                            name: order.customer?.name || "Tidak ada nama",
-                            phone: order.customer?.phone || "Tidak ada telp",
-                            address: order.customer?.address || "Tidak ada alamat"
-                        },
-                        products: order.products || [],
-                        total: order.total || 0,
-                        status: order.status || 'pending',
-                        date: order.date || new Date().toLocaleDateString('id-ID'),
-                        time: order.time || new Date().toLocaleTimeString('id-ID'),
-                        timestamp: order.timestamp || Date.now()
-                    };
-                    
-                    semuaOrders.push(standardizedOrder);
-                    addedCount++;
-                }
-            });
-            
-            // Simpan dan update
-            saveOrdersToStorage();
-            updateDashboard();
-            
-            alert(`✅ ${addedCount} orders baru berhasil diimport`);
-            
-        } catch (error) {
-            console.error("Error importing file:", error);
-            alert("Error membaca file: " + error.message);
-        }
-    };
-    
-    reader.readAsText(file);
-}
-
-// Setup drag & drop
-function setupDragAndDrop() {
-    const dropZone = document.getElementById('dropZone');
-    if (!dropZone) return;
-    
-    dropZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-    
-    dropZone.addEventListener('dragleave', function() {
-        dropZone.classList.remove('dragover');
-    });
-    
-    dropZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        
-        if (e.dataTransfer.files.length) {
-            const file = e.dataTransfer.files[0];
-            const fakeEvent = { target: { files: [file] } };
-            handleFileUpload(fakeEvent);
-        }
-    });
-}
-
-// ==================== UTILITY FUNCTIONS ====================
-
-// Format rupiah
-function formatRupiah(amount) {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-    }).format(amount);
-}
-
-// Get status text
-function getStatusText(status) {
-    const statusMap = {
-        'pending': 'BARU',
-        'processing': 'DIPROSES',
-        'completed': 'SELESAI'
-    };
-    return statusMap[status] || status;
-}
-
-// Update element text
-function updateElementText(elementId, text) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.textContent = text;
-    }
-}
-
-// Show/hide loading
-function showLoading(show) {
-    const loadingElement = document.getElementById('loading');
-    if (loadingElement) {
-        loadingElement.style.display = show ? 'flex' : 'none';
-    }
-}
-
-// Play notification sound
-function playNotificationSound() {
-    if (!soundEnabled) return;
-    
-    try {
-        // Buat audio context
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
-        
-    } catch (error) {
-        console.log("Audio not supported, using fallback");
-        // Fallback: buat elemen audio sederhana
-        const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
-        audio.volume = 0.3;
-        audio.play().catch(e => console.log("Audio play failed"));
-    }
-}
-
-// Toggle sound
-function toggleSound() {
-    soundEnabled = !soundEnabled;
-    
-    const soundIcon = document.getElementById('soundIcon');
-    const soundToggle = document.getElementById('soundToggle');
-    
-    if (soundIcon && soundToggle) {
-        if (soundEnabled) {
-            soundIcon.className = 'fas fa-volume-up';
-            soundToggle.title = 'Sound ON';
-            soundToggle.classList.remove('text-muted');
-        } else {
-            soundIcon.className = 'fas fa-volume-mute';
-            soundToggle.title = 'Sound OFF';
-            soundToggle.classList.add('text-muted');
-        }
-    }
-    
-    // Simpan preference
-    localStorage.setItem('pangsit_sound_enabled', soundEnabled.toString());
-}
-
-// Setup sound toggle dari localStorage
-function setupSoundToggle() {
-    const savedSoundPref = localStorage.getItem('pangsit_sound_enabled');
-    if (savedSoundPref !== null) {
-        soundEnabled = savedSoundPref === 'true';
-    }
-    
-    // Update icon awal
-    toggleSound();
-}
-
-// Check new orders
-function checkNewOrders() {
-    if (!lastUpdateTime) {
-        lastUpdateTime = Date.now();
-        return;
-    }
-    
-    const newOrders = semuaOrders.filter(order => 
-        order.timestamp > lastUpdateTime
-    );
-    
-    if (newOrders.length > 0) {
-        // Play sound
-        playNotificationSound();
-        
-        // Show notification
-        showNewOrderNotification(newOrders.length);
-        
-        // Update last update time
-        lastUpdateTime = Date.now();
-    }
-}
-
-// Show new order notification
-function showNewOrderNotification(count) {
-    // Buat notifikasi element
-    const notification = document.createElement('div');
-    notification.className = 'new-order-notification';
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fas fa-bell text-warning mr-2"></i>
-            <strong>${count} ORDER BARU!</strong>
-            <button class="close-notification" onclick="this.parentElement.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    // Tambah ke body
-    document.body.appendChild(notification);
-    
-    // Auto remove setelah 5 detik
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
-        }
-    }, 5000);
-}
-
-// Start auto-refresh
-function startAutoRefresh() {
-    // Hentikan interval sebelumnya jika ada
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
-    
-    // Set interval baru (30 detik)
-    refreshInterval = setInterval(() => {
-        loadOrdersFromStorage();
-    }, 30000); // 30 detik
-    
-    console.log("🔄 Auto-refresh diaktifkan (30 detik)");
-}
-
-// Clear all orders
-function clearAllOrders() {
-    if (semuaOrders.length === 0) {
-        alert("Tidak ada data untuk dihapus");
-        return;
-    }
-    
-    if (!confirm(`Hapus SEMUA ${semuaOrders.length} orders? Tindakan ini tidak bisa dibatalkan!`)) {
-        return;
-    }
-    
-    // Hapus dari localStorage
-    localStorage.removeItem('pangsit_admin_orders');
-    
-    // Reset data
-    semuaOrders = [];
-    
-    // Update tampilan
-    updateDashboard();
-    
-    alert("Semua data orders telah dihapus");
-}
-
-// Add sample orders untuk testing
-function addSampleOrders() {
-    const sampleOrders = [
-        {
-            id: 'PANG-' + Date.now(),
-            customer: {
-                name: 'Customer Contoh',
-                phone: '081234567890',
-                address: 'Jl. Contoh No. 123',
-                email: 'contoh@email.com'
-            },
-            products: [
-                { name: 'Pangsit Pedas', quantity: 2, price: 20000 },
-                { name: 'Pangsit Ayam', quantity: 1, price: 15000 }
-            ],
-            total: 55000,
-            status: 'pending',
-            date: new Date().toLocaleDateString('id-ID'),
-            time: new Date().toLocaleTimeString('id-ID'),
-            timestamp: Date.now(),
-            payment: 'QRIS',
-            notes: 'Contoh order untuk testing'
-        }
-    ];
-    
-    semuaOrders = sampleOrders;
-    saveOrdersToStorage();
-    
-    console.log("📝 Sample orders ditambahkan untuk testing");
-}
-
-// ==================== CSS HELPER ====================
-
-// Tambah CSS untuk admin panel
-function addAdminCSS() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .order-card {
-            background: white;
-            border-radius: 10px;
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
             padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-left: 4px solid #ff6b35;
-            transition: all 0.3s ease;
         }
         
-        .order-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .container {
+            max-width: 100%;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 3px solid var(--primary);
+        }
+        
+        .header h1 {
+            color: var(--secondary);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .header h1 i {
+            color: var(--primary);
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 16px;
+        }
+        
+        .github-badge {
+            display: inline-block;
+            background: #24292e;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--primary);
+        }
+        
+        .stat-card.new {
+            border-top-color: var(--success);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        /* Controls */
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(255,107,53,0.3);
         }
         
-        .order-card.new-order {
-            border-left-color: #25D366;
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+        }
+        
+        /* Orders */
+        .orders-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .order-card {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            animation: slideIn 0.4s ease;
+        }
+        
+        .order-card.new {
+            border-color: var(--primary);
+            background: #fff9e6;
             animation: pulse 2s infinite;
+        }
+        
+        .order-card.proses {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        
+        .order-card.selesai {
+            border-color: var(--success);
+            background: #f0fff4;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255,107,53,0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(255,107,53,0);
+            }
         }
         
         .order-header {
@@ -814,138 +215,615 @@ function addAdminCSS() {
         .order-id {
             font-family: 'Courier New', monospace;
             font-weight: bold;
-            color: #2d3047;
+            color: var(--secondary);
+            font-size: 16px;
         }
         
         .order-time {
-            color: #6c757d;
+            color: var(--gray);
             font-size: 14px;
         }
         
+        .customer-info {
+            margin-bottom: 15px;
+        }
+        
         .customer-name {
-            font-weight: 600;
             font-size: 18px;
-            color: #2d3047;
+            font-weight: 600;
+            color: var(--secondary);
             margin-bottom: 5px;
         }
         
         .customer-phone {
-            color: #ff6b35;
+            color: var(--primary);
             font-weight: 600;
-            margin-bottom: 5px;
+            font-size: 16px;
         }
         
         .order-total {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ff6b35;
-            margin-top: 10px;
+            text-align: right;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
         }
         
-        .order-actions {
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .status-new {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-proses {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-selesai {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .actions {
             display: flex;
             gap: 10px;
             margin-top: 15px;
         }
         
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6c757d;
-        }
-        
-        .new-order-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
             border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
-            border-left: 4px solid #25D366;
-        }
-        
-        .notification-content {
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 5px;
         }
         
-        .close-notification {
-            background: none;
-            border: none;
-            color: #6c757d;
+        .btn-wa {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-call {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-update {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        /* Sound toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             cursor: pointer;
-            margin-left: 15px;
+            z-index: 100;
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        /* Refresh button */
+        .refresh-fixed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 100;
         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-satellite-dish"></i>
+                PANGS!T LIVE ADMIN
+            </h1>
+            <p class="subtitle">Real-time orders from GitHub Pages</p>
+            <div class="github-badge">
+                <i class="fab fa-github"></i> GitHub Pages Active
+            </div>
+        </div>
         
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
+        <!-- Stats -->
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card new">
+                <div class="stat-number" id="newOrders">0</div>
+                <div class="stat-label">New Orders</div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" onclick="loadOrders()" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button class="btn btn-success" onclick="exportOrders()">
+                <i class="fas fa-download"></i> Export Data
+            </button>
+            <button class="btn btn-secondary" onclick="clearOrders()">
+                <i class="fas fa-trash"></i> Clear All
+            </button>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                <span id="lastUpdate">Last update: -</span>
+                <span id="autoRefresh" style="background: #e9ecef; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                    Auto: ON
+                </span>
+            </div>
+        </div>
+        
+        <!-- Orders Container -->
+        <div class="orders-container">
+            <h2 style="color: var(--secondary); margin-bottom: 20px;">
+                <i class="fas fa-bolt"></i> Live Orders
+            </h2>
+            
+            <div class="orders-list" id="ordersList">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No orders yet</h3>
+                    <p>Waiting for customers to place orders</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <h3 style="color: var(--secondary); margin-bottom: 15px;">
+                <i class="fas fa-info-circle"></i> How It Works
+            </h3>
+            <div style="color: var(--gray); font-size: 14px; line-height: 1.6;">
+                <p><strong>1.</strong> Customers order via main website</p>
+                <p><strong>2.</strong> Orders saved to browser storage</p>
+                <p><strong>3.</strong> This admin panel reads orders automatically</p>
+                <p><strong>4.</strong> Admin can update status and contact customers</p>
+                <p><strong>5.</strong> Data persists in browser (localStorage)</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" onclick="toggleSound()" id="soundToggle">
+        <i class="fas fa-volume-up" id="soundIcon"></i>
+    </div>
+    
+    <!-- Refresh Button -->
+    <div class="refresh-fixed" onclick="loadOrders()">
+        <i class="fas fa-redo"></i>
+    </div>
+    
+    <!-- Notification Sound -->
+    <audio id="notificationSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // ==================== ADMIN DASHBOARD ====================
+        
+        let orders = [];
+        let soundEnabled = true;
+        let lastUpdate = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+            
+            // Auto refresh every 5 seconds
+            setInterval(loadOrders, 5000);
+            
+            // Listen for new orders from other tabs/windows
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'pangsit_orders' || e.key === 'new_order') {
+                    playNotification();
+                    loadOrders();
+                }
+            });
+            
+            // Listen for custom events (from same tab)
+            window.addEventListener('newOrder', function(e) {
+                console.log('New order detected:', e.detail);
+                playNotification();
+                loadOrders();
+            });
+        });
+        
+        // Load orders from localStorage
+        function loadOrders() {
+            try {
+                // Update last update time
+                document.getElementById('lastUpdate').textContent = 
+                    `Last update: ${new Date().toLocaleTimeString('id-ID')}`;
+                
+                // Get orders from localStorage
+                const ordersData = localStorage.getItem('pangsit_orders');
+                
+                if (ordersData) {
+                    orders = JSON.parse(ordersData);
+                    
+                    // Sort by newest first
+                    orders.sort((a, b) => b.timestamp - a.timestamp);
+                    
+                    // Update display
+                    updateStats();
+                    renderOrders();
+                    
+                    // Check for new orders
+                    checkNewOrders();
+                } else {
+                    // No orders yet
+                    orders = [];
+                    updateStats();
+                    renderOrders();
+                }
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
             }
-            to {
-                transform: translateX(0);
-                opacity: 1;
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const totalOrders = orders.length;
+            const newOrders = orders.filter(o => o.status === 'pending').length;
+            
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('newOrders').textContent = newOrders;
+        }
+        
+        // Render orders
+        function renderOrders() {
+            const ordersList = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No orders yet</h3>
+                        <p>Waiting for customers to place orders</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            ordersList.innerHTML = orders.map(order => {
+                const isNew = order.status === 'pending';
+                const isProses = order.status === 'processing';
+                const isSelesai = order.status === 'completed';
+                
+                const cardClass = isNew ? 'order-card new' : 
+                                 isProses ? 'order-card proses' : 
+                                 'order-card selesai';
+                
+                const statusClass = isNew ? 'status-new' : 
+                                   isProses ? 'status-proses' : 'status-selesai';
+                
+                const statusText = isNew ? 'BARU' : 
+                                  isProses ? 'DIPROSES' : 'SELESAI';
+                
+                const totalAmount = order.total || 
+                    order.products?.reduce((sum, p) => sum + (p.price * p.quantity), 0) || 0;
+                
+                return `
+                    <div class="${cardClass}" data-id="${order.id}">
+                        <div class="order-header">
+                            <div class="order-id">${order.id}</div>
+                            <div class="order-time">${order.date || new Date(order.timestamp).toLocaleString('id-ID')}</div>
+                        </div>
+                        
+                        <div class="customer-info">
+                            <div class="customer-name">
+                                <i class="fas fa-user"></i> ${order.customer?.name || 'No name'}
+                            </div>
+                            <div class="customer-phone">
+                                <i class="fas fa-phone"></i> ${order.customer?.phone || 'No phone'}
+                            </div>
+                            ${order.customer?.address ? `
+                                <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                                    <i class="fas fa-map-marker-alt"></i> ${order.customer.address}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${order.products ? `
+                            <div style="
+                                background: #f8f9fa;
+                                padding: 10px;
+                                border-radius: 8px;
+                                margin: 10px 0;
+                                font-size: 14px;
+                            ">
+                                <strong>Items:</strong>
+                                ${order.products.map(p => `
+                                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                        <span>${p.name} x${p.quantity}</span>
+                                        <span>Rp ${(p.price * p.quantity).toLocaleString()}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="order-total">
+                            Rp ${parseInt(totalAmount).toLocaleString()}
+                        </div>
+                        
+                        <div class="status-badge ${statusClass}">
+                            ${statusText}
+                        </div>
+                        
+                        <div class="actions">
+                            <button class="action-btn btn-wa" onclick="whatsappCustomer('${order.customer?.phone || ''}', '${order.id}')">
+                                <i class="fab fa-whatsapp"></i> WA
+                            </button>
+                            <button class="action-btn btn-call" onclick="callCustomer('${order.customer?.phone || ''}')">
+                                <i class="fas fa-phone"></i> Call
+                            </button>
+                            <button class="action-btn btn-update" onclick="updateStatus('${order.id}')">
+                                <i class="fas fa-check"></i> Update
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Check for new orders
+        function checkNewOrders() {
+            if (!lastUpdate) {
+                lastUpdate = Date.now();
+                return;
+            }
+            
+            const newOrders = orders.filter(order => {
+                const orderTime = order.timestamp || new Date(order.date).getTime();
+                return orderTime > lastUpdate;
+            });
+            
+            if (newOrders.length > 0) {
+                playNotification();
+                showNotification(newOrders.length);
+            }
+            
+            lastUpdate = Date.now();
+        }
+        
+        // Play notification sound
+        function playNotification() {
+            if (soundEnabled) {
+                const sound = document.getElementById('notificationSound');
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Audio error:', e));
             }
         }
         
-        .dragover {
-            border-color: #ff6b35 !important;
-            background: rgba(255, 107, 53, 0.05) !important;
+        // Show notification
+        function showNotification(count) {
+            // Remove existing notification
+            const existing = document.getElementById('liveNotification');
+            if (existing) existing.remove();
+            
+            // Create notification
+            const notif = document.createElement('div');
+            notif.id = 'liveNotification';
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #ff6b35, #ff8e53);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(255,107,53,0.3);
+                z-index: 9999;
+                animation: slideIn 0.4s ease;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                max-width: 350px;
+                border: 2px solid white;
+            `;
+            
+            notif.innerHTML = `
+                <div style="font-size: 24px;">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 18px;">${count} ORDER BARU!</div>
+                    <div style="font-size: 14px;">Terdeteksi dari customer</div>
+                </div>
+                <button onclick="this.parentElement.remove()" style="
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 20px;
+                    cursor: pointer;
+                    margin-left: auto;
+                ">×</button>
+            `;
+            
+            document.body.appendChild(notif);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notif.parentElement) notif.remove();
+            }, 5000);
         }
-    `;
+        
+        // WhatsApp customer
+        function whatsappCustomer(phone, orderId) {
+            if (!phone) {
+                alert('No phone number available');
+                return;
+            }
+            
+            const message = `Halo, ini dari PANGS!T.\n\nPesanan ${orderId} sedang kami proses.\nTerima kasih!`;
+            const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+        
+        // Call customer
+        function callCustomer(phone) {
+            if (!phone) {
+                alert('No phone number available');
+                return;
+            }
+            window.open(`tel:${phone}`, '_self');
+        }
+        
+        // Update order status
+        function updateStatus(orderId) {
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) return;
+            
+            // Cycle through statuses
+            const statuses = ['pending', 'processing', 'completed'];
+            const currentStatus = orders[orderIndex].status || 'pending';
+            const currentIndex = statuses.indexOf(currentStatus);
+            const nextIndex = (currentIndex + 1) % statuses.length;
+            const nextStatus = statuses[nextIndex];
+            
+            // Update order
+            orders[orderIndex].status = nextStatus;
+            
+            // Save to localStorage
+            localStorage.setItem('pangsit_orders', JSON.stringify(orders));
+            
+            // Update display
+            renderOrders();
+            updateStats();
+            
+            // Show confirmation
+            alert(`Status order ${orderId} diubah menjadi: ${nextStatus.toUpperCase()}`);
+        }
+        
+        // Export orders
+        function exportOrders() {
+            if (orders.length === 0) {
+                alert('No orders to export');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(orders, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `pangsit_orders_${Date.now()}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        // Clear all orders
+        function clearOrders() {
+            if (confirm('Hapus SEMUA data order? Tindakan ini tidak bisa dibatalkan!')) {
+                localStorage.removeItem('pangsit_orders');
+                orders = [];
+                updateStats();
+                renderOrders();
+                alert('Semua data order telah dihapus');
+            }
+        }
+        
+        // Toggle sound
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            const toggle = document.getElementById('soundToggle');
+            
+            if (soundEnabled) {
+                icon.className = 'fas fa-volume-up';
+                toggle.style.background = 'white';
+                toggle.style.color = '#ff6b35';
+            } else {
+                icon.className = 'fas fa-volume-mute';
+                toggle.style.background = '#666';
+                toggle.style.color = 'white';
+            }
+        }
+        
+        // Load sample data for demo
+        function loadSampleData() {
+            const sampleOrders = [
+                {
+                    id: 'PANG-123456',
+                    customer: {
+                        name: 'Budi Santoso',
+                        phone: '081234567890',
+                        address: 'Jl. Merdeka No. 123, Jakarta'
+                    },
+                    products: [
+                        { name: 'Pangsit Pedas', quantity: 2, price: 20000 },
+                        { name: 'Pangsit Ayam', quantity: 1, price: 15000 }
+                    ],
+                    total: 55000,
+                    status: 'pending',
+                    timestamp: Date.now(),
+                    date: new Date().toLocaleString('id-ID')
+                }
+            ];
+            
+            localStorage.setItem('pangsit_orders', JSON.stringify(sampleOrders));
+            orders = sampleOrders;
+            updateStats();
+            renderOrders();
+        }
+        
+        // Load sample data if no orders
+        if (!localStorage.getItem('pangsit_orders')) {
+            setTimeout(loadSampleData, 1000);
+        }
+        
+        console.log('✅ Admin Dashboard ready for GitHub Pages!');
+    </script>
     
-    document.head.appendChild(style);
-}
-
-// ==================== INITIALIZATION ====================
-
-// Jalankan saat halaman dimuat
-document.addEventListener('DOMContentLoaded', function() {
-    // Tambah CSS khusus
-    addAdminCSS();
-    
-    // Inisialisasi admin panel
-    initAdminPanel();
-    
-    // Export fungsi ke global scope
-    window.updateOrderStatus = updateOrderStatus;
-    window.whatsappCustomer = whatsappCustomer;
-    window.callCustomer = callCustomer;
-    window.deleteOrder = deleteOrder;
-    window.exportOrdersToJSON = exportOrdersToJSON;
-    window.clearAllOrders = clearAllOrders;
-    window.toggleSound = toggleSound;
-    window.loadOrdersFromStorage = loadOrdersFromStorage;
-});
-
-// ==================== EVENT LISTENERS UNTUK DATA BARU ====================
-
-// Listen untuk data baru dari halaman lain
-window.addEventListener('storage', function(event) {
-    if (event.key === 'pangsit_orders' || event.key === 'new_order_added') {
-        console.log("📬 Data baru terdeteksi, memuat ulang...");
-        loadOrdersFromStorage();
-    }
-});
-
-// Listen untuk custom events
-window.addEventListener('newOrderNotification', function() {
-    playNotificationSound();
-    loadOrdersFromStorage();
-});
-
-console.log("📄 script-admin.js loaded successfully");
+</body>
+</html>
