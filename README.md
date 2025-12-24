@@ -1,39 +1,79 @@
-# 🏪 PANGS!T - Toko Online Pangsit Terlezat
+# 🥟 PANGSIT - Toko Online Pangsit Terlezat
 
-![PANGS!T Logo](foto/logo%20projek.png)
+![Banner PANGSIT](https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=PANGSIT+Toko+Online)
 
-**Toko Online Pangsit dengan cita rasa autentik yang telah menjadi favorit keluarga Indonesia sejak 2010.**
+Toko Online Pangsit dengan cita rasa autentik yang telah menjadi favorit keluarga Indonesia sejak 2010. Menyediakan berbagai varian pangsit berkualitas dengan bahan pilihan terbaik.
 
-## 🌟 Demo Live
-- 🔗 **Toko Online:** `https://[username].github.io/pangsit-toko-online/`
-- 🔗 **Admin Panel:** `https://[username].github.io/pangsit-toko-online/admin-live-pangsit.html`
-- 🔗 **Live Demo:** [Klik di sini untuk demo](https://sitirusmi.github.io/pangsit-toko-online/)
+---
 
-## 📱 Fitur Utama
+## 🚀 Demo Live
 
-### 🛒 **Untuk Customer**
-✅ **Katalog Produk Lengkap** - 6 varian pangsit lezat  
-✅ **Keranjang Belanja** - Add/remove/update quantity  
-✅ **Checkout Lengkap** - Form pengiriman lengkap  
-✅ **Multi Payment** - QRIS, E-wallet, Bank Transfer  
-✅ **Status Order Real-time** - Lacak pesanan langsung  
-✅ **Invoice Otomatis** - Cetak invoice PDF  
-✅ **WhatsApp Integration** - Chat langsung ke admin  
-✅ **Responsive Design** - Mobile & Desktop friendly  
+| Platform | Link |
+|----------|------|
+| **🌐 Toko Online** | [https://username.github.io/pangsit-toko-online/](https://username.github.io/pangsit-toko-online/) |
+| **🛠️ Admin Panel** | [https://username.github.io/pangsit-toko-online/admin-live-pangsit.html](https://username.github.io/pangsit-toko-online/admin-live-pangsit.html) |
+| **📱 Mobile Version** | Responsive di semua device |
 
-### 🖥️ **Untuk Admin**
-✅ **Dashboard Real-time** - Monitor order langsung  
-✅ **Manajemen Produk** - CRUD produk lengkap  
-✅ **Update Status Order** - Baru → Proses → Selesai  
-✅ **Inventory Management** - Pantau stok otomatis  
-✅ **Customer Database** - Data pelanggan  
-✅ **Analytics & Reports** - Statistik penjualan  
-✅ **Multi-admin Support** - Multiple admin accounts  
-✅ **Backup System** - Export/import database  
+> ⚠️ **Catatan**: Ganti `username` dengan username GitHub Anda yang sebenarnya
 
-## 🚀 Cara Instalasi
+---
 
-### **1. Clone Repository**
-```bash
-git clone https://github.com/sitirusmi/pangsit-toko-online.git
-cd pangsit-toko-online
+## ✨ Fitur Utama
+
+### 🛍️ Untuk Customer
+| Fitur | Deskripsi |
+|-------|-----------|
+| **📋 Katalog Produk Lengkap** | 6 varian pangsit lezat dengan foto dan deskripsi detail |
+| **🛒 Keranjang Belanja Cerdas** | Add, remove, dan update quantity dengan mudah |
+| **💳 Checkout Lengkap** | Proses pembayaran yang aman dan berbagai metode pembayaran |
+| **📦 Tracking Pesanan** | Pantau status pesanan real-time |
+| **⭐ Sistem Review & Rating** | Berikan ulasan untuk produk yang dibeli |
+| **🔔 Notifikasi** | Pemberitahuan status pesanan via email/WhatsApp |
+
+### 👨‍💼 Untuk Admin
+| Fitur | Deskripsi |
+|-------|-----------|
+| **📊 Dashboard Analytics** | Statistik penjualan, pengguna, dan produk |
+| **📦 Manajemen Produk** | CRUD produk, kategori, dan variasi |
+| **📝 Manajemen Pesanan** | Kelola status pesanan, konfirmasi pembayaran |
+| **📈 Laporan Penjualan** | Ekspor laporan harian/bulanan/tahunan |
+| **👥 Manajemen User** | Kelola customer dan staff admin |
+| **🔄 Manajemen Stok** | Auto-notifikasi stok menipis |
+
+---
+
+## 📱 Varian Produk
+
+| No | Nama Produk | Harga | Deskripsi |
+|----|-------------|-------|-----------|
+| 1 | Pangsit Original | Rp 25.000 | Pangsit dengan isian ayam berkualitas |
+| 2 | Pangsit Udang | Rp 30.000 | Perpaduan udang segar dan ayam |
+| 3 | Pangsit Keju | Rp 28.000 | Dengan keju melt di dalamnya |
+| 4 | Pangsit Pedas | Rp 27.000 | Isian ayam dengan level pedas |
+| 5 | Pangsit Sayuran | Rp 23.000 | Vegetarian friendly |
+| 6 | Pangsit Special Mix | Rp 35.000 | Kombinasi semua varian terbaik |
+
+---
+
+## 🛠️ Teknologi Stack
+
+### Frontend
+- **HTML5** - Struktur website
+- **CSS3** - Styling dengan Flexbox/Grid
+- **JavaScript (ES6+)** - Interaktivitas
+- **Bootstrap 5** (Opsional) - Framework CSS
+
+### Backend (Jika ada)
+- **PHP / Node.js** - Server-side
+- **MySQL / MongoDB** - Database
+- **REST API** - Komunikasi client-server
+
+### Tools & Services
+- **Git & GitHub** - Version control
+- **GitHub Pages** - Hosting gratis
+- **Figma** - Desain UI/UX
+- **Canva** - Desain grafis
+
+---
+
+## 📁 Struktur Project
