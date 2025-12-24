@@ -1,79 +1,64 @@
 # 🥟 PANGSIT - Toko Online Pangsit Terlezat
 
-![Banner PANGSIT](https://pangst-dev.github.io/-pangs-t/)
+![PANGSIT Banner](https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=PANGSIT+Toko+Online)
 
-Toko Online Pangsit dengan cita rasa autentik yang telah menjadi favorit keluarga Indonesia sejak 2010. Menyediakan berbagai varian pangsit berkualitas dengan bahan pilihan terbaik.
+**Toko Online Pangsit dengan cita rasa autentik yang telah menjadi favorit keluarga Indonesia sejak 2010.** Menyediakan berbagai varian pangsit berkualitas dengan bahan pilihan terbaik.
 
 ---
 
-## 🚀 Demo Live
+## 🚀 Demo & Akses
 
-| Platform | Link |
-|----------|------|
-| **🌐 Toko Online** | [https://pangst-dev.github.io/-pangs-t/) |
-| **🛠️ Admin Panel** | [https://pangst-dev.github.io/admin/) |
-| **📱 Mobile Version** | Responsive di semua device |
+| Platform | Status | Link |
+|----------|--------|------|
+| **🌐 Website Utama** | ✅ Online | [https://pangst-dev.github.io/pangsit-toko-online/](https://pangst-dev.github.io/pangsit-toko-online/) |
+| **🛠️ Admin Panel** | ⚠️ Perlu Setup | [https://pangst-dev.github.io/pangsit-toko-online/admin/](https://pangst-dev.github.io/pangsit-toko-online/admin/) |
+| **📱 Mobile** | ✅ Responsif | Otomatis menyesuaikan perangkat |
 
-> ⚠️ **Catatan**: Ganti `username` dengan username GitHub Anda yang sebenarnya
+> **Catatan Penting:** Pastikan file `admin/index.html` sudah ada di repository!
 
 ---
 
 ## ✨ Fitur Utama
 
-### 🛍️ Untuk Customer
-| Fitur | Deskripsi |
-|-------|-----------|
-| **📋 Katalog Produk Lengkap** | 6 varian pangsit lezat dengan foto dan deskripsi detail |
-| **🛒 Keranjang Belanja Cerdas** | Add, remove, dan update quantity dengan mudah |
-| **💳 Checkout Lengkap** | Proses pembayaran yang aman dan berbagai metode pembayaran |
-| **📦 Tracking Pesanan** | Pantau status pesanan real-time |
-| **⭐ Sistem Review & Rating** | Berikan ulasan untuk produk yang dibeli |
-| **🔔 Notifikasi** | Pemberitahuan status pesanan via email/WhatsApp |
+### 🛍️ Untuk Pelanggan
+- **📋 Katalog Produk** - 6 varian pangsit lezat
+- **🛒 Keranjang Belanja** - Tambah/hapus/update jumlah
+- **💳 Checkout Lengkap** - Proses pembayaran mudah
+- **📦 Tracking Pesanan** - Pantau status pengiriman
+- **⭐ Ulasan Produk** - Beri rating dan review
 
 ### 👨‍💼 Untuk Admin
-| Fitur | Deskripsi |
-|-------|-----------|
-| **📊 Dashboard Analytics** | Statistik penjualan, pengguna, dan produk |
-| **📦 Manajemen Produk** | CRUD produk, kategori, dan variasi |
-| **📝 Manajemen Pesanan** | Kelola status pesanan, konfirmasi pembayaran |
-| **📈 Laporan Penjualan** | Ekspor laporan harian/bulanan/tahunan |
-| **👥 Manajemen User** | Kelola customer dan staff admin |
-| **🔄 Manajemen Stok** | Auto-notifikasi stok menipis |
+- **📊 Dashboard** - Statistik penjualan
+- **📦 Manajemen Produk** - Kelola stok dan harga
+- **📝 Manajemen Pesanan** - Proses order pelanggan
+- **👥 Manajemen User** - Data pelanggan
 
 ---
 
-## 📱 Varian Produk
+## 📱 Produk Kami
 
-| No | Nama Produk | Harga | Deskripsi |
-|----|-------------|-------|-----------|
-| 1 | Pangsit Original | Rp 25.000 | Pangsit dengan isian ayam berkualitas |
-| 2 | Pangsit Udang | Rp 30.000 | Perpaduan udang segar dan ayam |
-| 3 | Pangsit Keju | Rp 28.000 | Dengan keju melt di dalamnya |
-| 4 | Pangsit Pedas | Rp 27.000 | Isian ayam dengan level pedas |
+| No | Produk | Harga | Deskripsi |
+|----|--------|-------|-----------|
+| 1 | Pangsit Original | Rp 25.000 | Isian ayam pilihan |
+| 2 | Pangsit Udang | Rp 30.000 | Udang segar premium |
+| 3 | Pangsit Keju | Rp 28.000 | Dengan keju lumer |
+| 4 | Pangsit Pedas | Rp 27.000 | Level pedas bisa pilih |
 | 5 | Pangsit Sayuran | Rp 23.000 | Vegetarian friendly |
-| 6 | Pangsit Special Mix | Rp 35.000 | Kombinasi semua varian terbaik |
+| 6 | Pangsit Special | Rp 35.000 | Mix semua varian |
 
 ---
 
-## 🛠️ Teknologi Stack
+## 🛠️ Teknologi
 
-### Frontend
-- **HTML5** - Struktur website
-- **CSS3** - Styling dengan Flexbox/Grid
-- **JavaScript (ES6+)** - Interaktivitas
-- **Bootstrap 5** (Opsional) - Framework CSS
+**Frontend:**
+- ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+- ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+- ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
 
-### Backend (Jika ada)
-- **PHP / Node.js** - Server-side
-- **MySQL / MongoDB** - Database
-- **REST API** - Komunikasi client-server
-
-### Tools & Services
-- **Git & GitHub** - Version control
-- **GitHub Pages** - Hosting gratis
-- **Figma** - Desain UI/UX
-- **Canva** - Desain grafis
+**Hosting & Tools:**
+- ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-222222?style=flat&logo=githubpages&logoColor=white)
+- ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)
 
 ---
 
-## 📁 Struktur Project
+## 📁 Struktur Folder
