@@ -1,661 +1,290 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <script src="js/admin-database.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PANGS!T - Admin Live</title>
+    <title>Admin Panel - PANGS!T Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        :root {
+            --primary: #ff6b35;
+            --secondary: #2d3047;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
         }
         
-        .admin-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', system-ui; 
+            background: #f5f7fa;
+            color: var(--dark);
         }
         
         .admin-header {
-            background: linear-gradient(135deg, #2d3047 0%, #ff6b35 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .admin-header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+        .logo-admin {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
         }
         
-        .admin-header h1 span {
-            color: #ffcc00;
+        .logo-admin span { color: var(--primary); }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
-        .admin-header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-        
-        .admin-stats {
+        .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            padding: 25px;
-            background: #f8f9fa;
+            margin-bottom: 30px;
         }
         
         .stat-card {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             text-align: center;
-            border-top: 5px solid #ff6b35;
-            transition: transform 0.3s;
         }
         
-        .stat-card:hover {
-            transform: translateY(-5px);
+        .stat-card h3 { 
+            color: var(--secondary); 
+            margin-bottom: 10px;
+            font-size: 18px;
         }
         
         .stat-number {
             font-size: 36px;
             font-weight: bold;
-            color: #2d3047;
-            margin: 10px 0;
+            color: var(--primary);
         }
         
         .orders-section {
-            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
         
-        .orders-section h2 {
-            color: #2d3047;
+        .section-title {
+            color: var(--secondary);
             margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .order-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-btn {
-            padding: 8px 20px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .filter-btn.active {
-            background: #2d3047;
-            color: white;
-            border-color: #2d3047;
-        }
-        
-        .orders-list {
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-        
-        .order-card {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-        
-        .order-card:hover {
-            border-color: #ff6b35;
-            box-shadow: 0 10px 25px rgba(255,107,53,0.1);
-        }
-        
-        .order-header {
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
         }
         
-        .order-id {
-            font-weight: bold;
-            color: #2d3047;
-            font-size: 18px;
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
         }
         
-        .order-time {
-            color: #6c757d;
-            font-size: 14px;
+        .orders-table th {
+            background: var(--light);
+            padding: 15px;
+            text-align: left;
+            color: var(--secondary);
+            border-bottom: 2px solid #ddd;
         }
         
-        .order-status {
-            display: inline-block;
+        .orders-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-row:hover {
+            background: #f9f9f9;
+        }
+        
+        .status-badge {
             padding: 5px 15px;
             border-radius: 20px;
-            font-weight: bold;
             font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
         }
         
         .status-new { background: #fff3cd; color: #856404; }
-        .status-process { background: #cce5ff; color: #004085; }
-        .status-done { background: #d4edda; color: #155724; }
-        .status-cancel { background: #f8d7da; color: #721c24; }
+        .status-processing { background: #cce5ff; color: #004085; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered { background: #d1e7dd; color: #0f5132; }
         
-        .customer-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        
-        .btn {
-            padding: 8px 20px;
+        .btn-action {
+            padding: 8px 15px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
-            display: inline-flex;
+        }
+        
+        .btn-view { background: var(--primary); color: white; }
+        .btn-update { background: var(--secondary); color: white; }
+        
+        .btn-action:hover { opacity: 0.9; transform: translateY(-2px); }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .btn:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
-        }
-        
-        .btn-process { background: #007bff; color: white; }
-        .btn-done { background: #28a745; color: white; }
-        .btn-cancel { background: #dc3545; color: white; }
-        .btn-whatsapp { background: #25d366; color: white; }
-        
-        .actions-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .refresh-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #ff6b35;
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
-            z-index: 100;
-            transition: all 0.3s;
-        }
-        
-        .refresh-btn:hover {
-            transform: rotate(180deg);
-            box-shadow: 0 10px 25px rgba(255,107,53,0.4);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-        
-        .empty-state i {
-            font-size: 64px;
-            margin-bottom: 20px;
-            color: #dee2e6;
-        }
-        
         @media (max-width: 768px) {
-            .admin-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .order-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .admin-header {
-                padding: 20px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .admin-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .actions-row {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
+            .orders-table { display: block; overflow-x: auto; }
+            .stats-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>PANGS!T <span>ADMIN LIVE</span></h1>
-            <p>Real-time Order Monitoring System</p>
-            <p style="margin-top: 10px; font-size: 13px;">
-                <i class="fas fa-store"></i> PANGSIT_001 • 
-                <i class="fas fa-user"></i> Siti Rusmi • 
-                <i class="fas fa-phone"></i> 0831-9524-3139
-            </p>
-        </div>
-        
-        <div class="admin-stats">
-            <div class="stat-card">
-                <div><i class="fas fa-shopping-cart"></i> Total Order</div>
-                <div class="stat-number" id="totalOrders">0</div>
-                <div style="color: #6c757d; font-size: 13px;">Semua waktu</div>
-            </div>
-            
-            <div class="stat-card">
-                <div><i class="fas fa-calendar-day"></i> Order Hari Ini</div>
-                <div class="stat-number" id="todayOrders">0</div>
-                <div style="color: #6c757d; font-size: 13px;" id="todayDate"></div>
-            </div>
-            
-            <div class="stat-card">
-                <div><i class="fas fa-clock"></i> Pending</div>
-                <div class="stat-number" id="pendingOrders">0</div>
-                <div style="color: #6c757d; font-size: 13px;">Perlu diproses</div>
-            </div>
-            
-            <div class="stat-card">
-                <div><i class="fas fa-money-bill-wave"></i> Pendapatan</div>
-                <div class="stat-number" id="totalRevenue">Rp 0</div>
-                <div style="color: #6c757d; font-size: 13px;">Total revenue</div>
-            </div>
-        </div>
-        
-        <div class="orders-section">
-            <h2><i class="fas fa-boxes"></i> Live Orders</h2>
-            
-            <div class="order-filters">
-                <button class="filter-btn active" data-filter="all">Semua</button>
-                <button class="filter-btn" data-filter="new">BARU</button>
-                <button class="filter-btn" data-filter="process">PROSES</button>
-                <button class="filter-btn" data-filter="done">SELESAI</button>
-                <button class="filter-btn" data-filter="cancel">BATAL</button>
-            </div>
-            
-            <div class="orders-list" id="ordersList">
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>Belum ada order</h3>
-                    <p>Order dari customer akan muncul di sini secara real-time</p>
-                    <p style="font-size: 13px; margin-top: 10px;">
-                        Sistem auto-refresh setiap 10 detik
-                    </p>
-                </div>
-            </div>
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="logo-admin">PANGS!T <span>Admin Panel</span></div>
+        <div>
+            <button class="refresh-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
         </div>
     </div>
     
-    <button class="refresh-btn" id="refreshBtn">
-        <i class="fas fa-sync-alt"></i>
-    </button>
+    <!-- Main Content -->
+    <div class="admin-container">
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>Pesanan Hari Ini</h3>
+                <div class="stat-number" id="todayOrders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Menunggu Diproses</h3>
+                <div class="stat-number" id="pendingOrders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Pendapatan</h3>
+                <div class="stat-number" id="totalRevenue">Rp 0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Pesanan Baru</h3>
+                <div class="stat-number" id="newOrders">0</div>
+            </div>
+        </div>
+        
+        <!-- Orders List -->
+        <div class="orders-section">
+            <div class="section-title">
+                <h2>Daftar Pesanan</h2>
+                <div style="font-size: 14px; color: #666;">
+                    <i class="fas fa-info-circle"></i>
+                    Klik "Update Status" untuk ubah status pesanan
+                </div>
+            </div>
+            
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Pelanggan</th>
+                        <th>Tanggal</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Data pesanan akan diisi oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
     
-    <script src="js/database.js"></script>
-    <script>
-        // PANGSIT Admin Panel
-        class AdminPanel {
-            constructor() {
-                this.orders = [];
-                this.filter = 'all';
-                this.init();
-            }
+    <!-- Modal Update Status -->
+    <div class="modal" id="updateStatusModal">
+        <div class="modal-content">
+            <h3 style="color: var(--secondary); margin-bottom: 20px;">
+                Update Status Pesanan
+            </h3>
             
-            async init() {
-                console.log('🔧 Admin Panel Starting...');
-                
-                // Set today's date
-                document.getElementById('todayDate').textContent = 
-                    new Date().toLocaleDateString('id-ID', { 
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                
-                // Load initial data
-                await this.loadOrders();
-                
-                // Setup event listeners
-                this.setupEventListeners();
-                
-                // Setup auto-refresh
-                setInterval(() => this.loadOrders(), 10000);
-                
-                // Setup storage listener
-                window.addEventListener('storage', (e) => {
-                    if (e.key === 'pangsit_live_orders') {
-                        this.loadOrders();
-                        this.showNotification('📥 Order baru masuk!', 'info');
-                    }
-                });
-                
-                // Listen for custom event from database
-                window.addEventListener('newOrder', (e) => {
-                    this.orders.unshift(e.detail);
-                    this.renderOrders();
-                    this.updateStats();
-                    this.showNotification(`📦 Order baru: ${e.detail.customer_name}`, 'success');
-                });
-                
-                console.log('✅ Admin Panel Ready');
-            }
+            <div id="modalOrderInfo">
+                <!-- Info pesanan akan diisi di sini -->
+            </div>
             
-            setupEventListeners() {
-                // Refresh button
-                document.getElementById('refreshBtn').addEventListener('click', () => {
-                    this.loadOrders();
-                    this.showNotification('🔄 Data diperbarui', 'info');
-                });
-                
-                // Filter buttons
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        // Update active button
-                        document.querySelectorAll('.filter-btn').forEach(b => 
-                            b.classList.remove('active'));
-                        e.target.classList.add('active');
-                        
-                        // Set filter
-                        this.filter = e.target.dataset.filter;
-                        this.renderOrders();
-                    });
-                });
-            }
+            <div style="margin: 25px 0;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600;">
+                    Pilih Status Baru:
+                </label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                    <button class="status-option" data-status="pending">
+                        ⏳ Menunggu
+                    </button>
+                    <button class="status-option" data-status="processing">
+                        🛠️ Diproses
+                    </button>
+                    <button class="status-option" data-status="shipped">
+                        🚚 Dikirim
+                    </button>
+                    <button class="status-option" data-status="delivered">
+                        ✅ Selesai
+                    </button>
+                </div>
+            </div>
             
-            async loadOrders() {
-                try {
-                    // Load from localStorage
-                    const stored = localStorage.getItem('pangsit_live_orders');
-                    this.orders = stored ? JSON.parse(stored) : [];
-                    
-                    // Update display
-                    this.updateStats();
-                    this.renderOrders();
-                    
-                } catch (error) {
-                    console.error('❌ Error loading orders:', error);
-                }
-            }
-            
-            updateStats() {
-                const today = new Date().toDateString();
-                
-                // Filter orders
-                const todayOrders = this.orders.filter(o => 
-                    new Date(o.timestamp).toDateString() === today
-                );
-                
-                const pendingOrders = this.orders.filter(o => 
-                    o.status === 'BARU'
-                );
-                
-                const completedOrders = this.orders.filter(o => 
-                    o.status === 'SELESAI'
-                );
-                
-                const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-                
-                // Update UI
-                document.getElementById('totalOrders').textContent = this.orders.length;
-                document.getElementById('todayOrders').textContent = todayOrders.length;
-                document.getElementById('pendingOrders').textContent = pendingOrders.length;
-                document.getElementById('totalRevenue').textContent = 
-                    'Rp ' + totalRevenue.toLocaleString('id-ID');
-            }
-            
-            renderOrders() {
-                const container = document.getElementById('ordersList');
-                
-                // Filter orders based on current filter
-                let filteredOrders = [...this.orders];
-                
-                if (this.filter === 'new') {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'BARU');
-                } else if (this.filter === 'process') {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'PROSES');
-                } else if (this.filter === 'done') {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'SELESAI');
-                } else if (this.filter === 'cancel') {
-                    filteredOrders = filteredOrders.filter(o => o.status === 'BATAL');
-                }
-                
-                // Sort by timestamp (newest first)
-                filteredOrders.sort((a, b) => b.timestamp - a.timestamp);
-                
-                if (filteredOrders.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <h3>Tidak ada order</h3>
-                            <p>Tidak ada order dengan filter "${this.filter}"</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                container.innerHTML = filteredOrders.map(order => {
-                    const waktu = order.time || new Date(order.timestamp).toLocaleTimeString('id-ID');
-                    const tanggal = order.date || new Date(order.timestamp).toLocaleDateString('id-ID');
-                    
-                    // Status class
-                    const statusClass = {
-                        'BARU': 'status-new',
-                        'PROSES': 'status-process',
-                        'SELESAI': 'status-done',
-                        'BATAL': 'status-cancel'
-                    }[order.status] || 'status-new';
-                    
-                    // WhatsApp link
-                    const waLink = `https://wa.me/${order.customer_phone || '6283195243139'}?text=Halo%20${encodeURIComponent(order.customer_name)}%2C%20order%20${order.order_id}%20PANGSIT%20status%3A%20${order.status}`;
-                    
-                    return `
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div>
-                                    <div class="order-id">${order.order_id}</div>
-                                    <div class="order-time">${tanggal} • ${waktu}</div>
-                                </div>
-                                <div class="order-status ${statusClass}">${order.status}</div>
-                            </div>
-                            
-                            <div class="customer-info">
-                                <div style="font-weight: bold; color: #2d3047; margin-bottom: 5px;">
-                                    <i class="fas fa-user"></i> ${order.customer_name}
-                                </div>
-                                <div style="margin-bottom: 5px;">
-                                    <i class="fas fa-phone"></i> ${order.customer_phone || 'Tidak ada telepon'}
-                                </div>
-                                <div style="margin-top: 10px; color: #495057;">
-                                    <i class="fas fa-box"></i> ${order.items}
-                                </div>
-                                <div style="margin-top: 10px; font-size: 20px; color: #ff6b35;">
-                                    <i class="fas fa-money-bill-wave"></i> 
-                                    <strong>Rp ${order.total.toLocaleString('id-ID')}</strong>
-                                </div>
-                            </div>
-                            
-                            <div class="actions-row">
-                                ${order.status === 'BARU' ? `
-                                    <button class="btn btn-process" onclick="adminPanel.updateStatus('${order.order_id}', 'PROSES')">
-                                        <i class="fas fa-play-circle"></i> Proses
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'PROSES' ? `
-                                    <button class="btn btn-done" onclick="adminPanel.updateStatus('${order.order_id}', 'SELESAI')">
-                                        <i class="fas fa-check-circle"></i> Selesai
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status !== 'SELESAI' && order.status !== 'BATAL' ? `
-                                    <button class="btn btn-cancel" onclick="adminPanel.updateStatus('${order.order_id}', 'BATAL')">
-                                        <i class="fas fa-times-circle"></i> Batal
-                                    </button>
-                                ` : ''}
-                                
-                                <a href="${waLink}" target="_blank" class="btn btn-whatsapp">
-                                    <i class="fab fa-whatsapp"></i> WhatsApp
-                                </a>
-                                
-                                <button class="btn" style="background: #6c757d; color: white;" 
-                                        onclick="adminPanel.viewDetails('${order.order_id}')">
-                                    <i class="fas fa-eye"></i> Detail
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-            
-            updateStatus(orderId, newStatus) {
-                // Find order
-                const orderIndex = this.orders.findIndex(o => o.order_id === orderId);
-                
-                if (orderIndex !== -1) {
-                    // Update status
-                    this.orders[orderIndex].status = newStatus;
-                    this.orders[orderIndex].updated_at = Date.now();
-                    
-                    // Save to localStorage
-                    localStorage.setItem('pangsit_live_orders', JSON.stringify(this.orders));
-                    
-                    // Update display
-                    this.updateStats();
-                    this.renderOrders();
-                    
-                    // Show notification
-                    this.showNotification(`✅ Order ${orderId} diubah ke ${newStatus}`, 'success');
-                    
-                    // Also update main database if available
-                    if (window.pangsitDB) {
-                        window.pangsitDB.updateLiveOrderStatus(orderId, newStatus);
-                    }
-                    
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            viewDetails(orderId) {
-                const order = this.orders.find(o => o.order_id === orderId);
-                if (order) {
-                    const details = `
-Order ID: ${order.order_id}
-Nama: ${order.customer_name}
-Telepon: ${order.customer_phone || 'Tidak ada'}
-Items: ${order.items}
-Total: Rp ${order.total.toLocaleString('id-ID')}
-Status: ${order.status}
-Tanggal: ${order.date || new Date(order.timestamp).toLocaleDateString('id-ID')}
-Waktu: ${order.time || new Date(order.timestamp).toLocaleTimeString('id-ID')}
-                    `;
-                    
-                    alert(details);
-                }
-            }
-            
-            showNotification(message, type = 'info') {
-                // Remove existing notification
-                const existing = document.querySelector('.admin-notification');
-                if (existing) existing.remove();
-                
-                // Create notification
-                const notification = document.createElement('div');
-                notification.className = 'admin-notification';
-                notification.textContent = message;
-                
-                const bgColor = type === 'success' ? '#28a745' : 
-                               type === 'error' ? '#dc3545' : 
-                               type === 'warning' ? '#ffc107' : '#17a2b8';
-                
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: ${bgColor};
-                    color: white;
-                    padding: 12px 25px;
-                    border-radius: 8px;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                    z-index: 10000;
-                    animation: slideDown 0.3s ease;
-                    max-width: 80%;
-                    text-align: center;
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Auto remove after 3 seconds
-                setTimeout(() => {
-                    notification.style.animation = 'slideUp 0.3s ease';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }
-        }
-        
-        // Add animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideDown {
-                from { transform: translate(-50%, -100%); opacity: 0; }
-                to { transform: translate(-50%, 0); opacity: 1; }
-            }
-            @keyframes slideUp {
-                from { transform: translate(-50%, 0); opacity: 1; }
-                to { transform: translate(-50%, -100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Initialize admin panel
-        let adminPanel;
-        document.addEventListener('DOMContentLoaded', () => {
-            adminPanel = new AdminPanel();
-            window.adminPanel = adminPanel;
-        });
-    </script>
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn-action" id="cancelUpdate" 
+                        style="background: #6c757d; color: white; flex: 1;">
+                    Batal
+                </button>
+                <button class="btn-action" id="confirmUpdate" 
+                        style="background: var(--primary); color: white; flex: 1;">
+                    Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/shared-database.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
