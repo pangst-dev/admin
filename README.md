@@ -1,6 +1,6 @@
 # 🥟 PANGSIT - Toko Online Pangsit Terlezat
 
-![Banner PANGSIT](https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=PANGSIT+Toko+Online)
+![Banner PANGSIT](https://pangst-dev.github.io/-pangs-t/)
 
 Toko Online Pangsit dengan cita rasa autentik yang telah menjadi favorit keluarga Indonesia sejak 2010. Menyediakan berbagai varian pangsit berkualitas dengan bahan pilihan terbaik.
 
@@ -10,8 +10,8 @@ Toko Online Pangsit dengan cita rasa autentik yang telah menjadi favorit keluarg
 
 | Platform | Link |
 |----------|------|
-| **🌐 Toko Online** | [https://username.github.io/pangsit-toko-online/](https://username.github.io/pangsit-toko-online/) |
-| **🛠️ Admin Panel** | [https://username.github.io/pangsit-toko-online/admin-live-pangsit.html](https://username.github.io/pangsit-toko-online/admin-live-pangsit.html) |
+| **🌐 Toko Online** | [https://pangst-dev.github.io/-pangs-t/) |
+| **🛠️ Admin Panel** | [https://pangst-dev.github.io/admin/) |
 | **📱 Mobile Version** | Responsive di semua device |
 
 > ⚠️ **Catatan**: Ganti `username` dengan username GitHub Anda yang sebenarnya
